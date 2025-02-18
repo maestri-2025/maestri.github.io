@@ -48,3 +48,19 @@ export default tseslint.config({
   },
 })
 ```
+
+# Node and NPM
+
+Built using node v20.18.0 and npm 10.8.2. Node and npm versions can be managed using [node version manager](https://github.com/nvm-sh/nvm).
+
+# Component Libraries
+
+## PrimeReact
+
+PrimeReact is the main compoenent framework for this application. Documentation on components and usage can be found [here](https://primereact.org/).
+
+## Nivo
+
+Nivo is a dataviz component library built on top of D3.js for React. Documentation on components can be found [here](https://nivo.rocks/).
+
+Nivo requires React version <19.0, so this project is developed using version 18. Packages for plots need to be installed independently, those likely to be used have already been installed but a list of all pacakges can be seen [here](https://www.npmjs.com/org/nivo).
