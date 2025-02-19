@@ -25,16 +25,16 @@ if __name__ == "__main__":
     """
 
     df_tracks = pd.read_csv("output_tracks.csv", dtype={"geniusId": pd.Int64Dtype()}) # spotifyId,trackName,artistName,releaseDate,geniusId,geniusTrackName,geniusArtistName,geniusReleaseDate,trackLanguage
-    df_tracks= df_tracks.drop_duplicates(subset=["geniusId"])
+    df_tracks= df_tracks[df_tracks["geniusId"].notna()].drop_duplicates(subset=["geniusId"])
     df_contributions = pd.read_csv("output_contributions.csv", dtype={"geniusId": pd.Int64Dtype()})
     tracks_by_spotify_id = {}
     tracks_without_charting = []
     for i, t in df_tracks.iterrows(): 
 
         track = {
-            "genius_id": t['geniusId'],
+            "track_id": t['geniusId'],
             "spotify_id": t['spotifyId'],
-            "name": t['trackName'],
+            "name": t['geniusTrackName'],
             "release_date": t['geniusReleaseDate'],
             "primary_artist_name": t['geniusArtistName'],
             "primary_artist_id": hash(t['geniusArtistName']),
@@ -42,14 +42,19 @@ if __name__ == "__main__":
         }
 
         if pd.isnull(t['geniusId']):
-            track["genius_id"] = None
-
-        if t['spotifyId'] is None:
+            track["track_id"] = ""
+        if pd.isnull(t['geniusReleaseDate']):
+            track["release_date"] = ""
+        if pd.isnull(t['spotifyId']):
+            track['spotify_id'] = ""
             tracks_without_charting.append(track)
         else: 
             tracks_by_spotify_id[t['spotifyId']] = track
+    #with open('tracks_by_spotify_id.json', 'w') as fp:
+    #        json.dump(tracks_by_spotify_id, fp)
     
     df_charting = pd.read_csv("output.csv") # Country,Week,spotifyId,trackName,artistName,releaseDate,currentRank,peakRank,weeksOnChart,numStreams,entryDate
+    #df_tracks_with_charting = df_tracks.merge(df_charting, on=['spotifyId'])
     for i, c in df_charting.iterrows():
         spotify_id = c['spotifyId']
         charting_info = {
@@ -70,7 +75,7 @@ if __name__ == "__main__":
     for spotify_id, t in tracks_by_spotify_id.items():
         tracks.append(t)
     for t in tracks_without_charting:
-        t.append(t)
+        tracks.append(t)
 
     with open('tracks.json', 'w') as fp:
         json.dump(tracks, fp)
@@ -78,7 +83,7 @@ if __name__ == "__main__":
     ####### Artists
         """
     Artist
-    {genius_id
+    {artist_id
      name
      image_link
      contributions [{
@@ -102,20 +107,20 @@ if __name__ == "__main__":
         if t['primary_artist_id'] in artists_by_id:
             artist = artists_by_id[t['primary_artist_id']]
             artist['contributions'].append({
-                'track_id': t['genius_id'],
+                'track_id': t['track_id'],
                 'track_name': t['name'],
                 'contribution_type': 'primary'
                 })
             artists_by_id['primary_artist_id'] = artist
         else:
             artist = {
-                "genius_id" : t['primary_artist_id'],
+                "artist_id" : t['primary_artist_id'],
                 "name" : t['primary_artist_name'],
                 "image_link" : None,
                 "contributions": [{
-                            'track_id': t['genius_id'],
+                            'track_id': t['track_id'],
                             'track_name': t['name'],
-                            'track_artist_id': t['genius_id'],
+                            'track_artist_id': t['primary_artist_id'],
                             'contribution_type': 'primary'
                             }],
                 "contributors": []
@@ -127,6 +132,8 @@ if __name__ == "__main__":
     df_joined_contributions = df_tracks.merge(df_contributions, on="geniusId")
     # spotifyId,trackName,artistName,releaseDate,geniusId,geniusTrackName,geniusArtistName,geniusReleaseDate,trackLanguage,type,artistId,name
     for i, t in df_joined_contributions.iterrows():
+        if pd.isnull(t['name']): # TODO: make sure feature artists have their names
+            continue
         # contributions by artist
         primary_artist_id = hash(t['geniusArtistName'])
         contributing_artist_id = hash(t['name'])
@@ -135,6 +142,7 @@ if __name__ == "__main__":
             artist['contributions'].append({
                 'track_id': t['geniusId'],
                 'track_name': t['geniusTrackName'],
+                "primary_artist_id": hash(t['geniusArtistName']),
                 'contribution_type': t['type']
                 })
             artists_by_id[contributing_artist_id] = artist
@@ -146,6 +154,7 @@ if __name__ == "__main__":
                 "contributions": [{
                     'track_id': t['geniusId'],
                     'track_name': t['geniusTrackName'],
+                    "primary_artist_id": hash(t['geniusArtistName']),
                     'contribution_type': t['type']
                             }],
                 "contributors": []
@@ -157,7 +166,7 @@ if __name__ == "__main__":
             artist['contributors'].append({
                 'track_id': t['geniusId'],
                 'track_name': t['geniusTrackName'],
-                'contributor_id': contributing_artist_id,
+                'contributor_artist_id': contributing_artist_id,
                 'contributor_name' : t['name'],
                 'contribution_type': t['type']
                 })
@@ -170,14 +179,14 @@ if __name__ == "__main__":
                 "contributions": [{
                     'track_id': t['geniusId'],
                     'track_name': t['geniusTrackName'],
-                    'contributor_id': contributing_artist_id,
+                    'contributor_artist_id': contributing_artist_id,
                     'contributor_name' : t['name'],
                     'contribution_type': t['type']
                     }],
                 "contributors": []
                 }
             artists_by_id[primary_artist_id] = artist
-
+        artists = list(artists_by_id.values())
         with open('artists.json', 'w') as fp:
-            json.dump(artists_by_id, fp)
+            json.dump(artists, fp)
         
