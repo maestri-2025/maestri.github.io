@@ -1,17 +1,17 @@
-const black = "#111827";
-const brown_sugar = "#c57b57";
-const beaver = "#ae9487"; 
-const cadent_gray = "#96acb7";
-const cambride_blue = "#81957f";
-const reseda_green = "#6c7d47";
-const sadina_sheen_gold = "#b49e35";
-const amber = "#fbbf23";
+const colorPalette: { [key: string]: string } = {
+    black: "#111827",
+    brown_sugar: "#c57b57",
+    beaver: "#ae9487",
+    cadet_gray: "#96acb7",
+    cambridge_blue: "#81957f",
+    reseda_green: "#6c7d47",
+    sandina_sheen_gold: "#b49e35",
+    amber: "#fbbf23"
+};
 
-function colorPalette():string[] {
-    // returns the colorPalette as an array, colorPalette()[0] = black = "#111827"
-    return new Array (black, brown_sugar, beaver, cadent_gray, cambride_blue, reseda_green, sadina_sheen_gold, amber);
+function getColorPalette(){
+    return colorPalette;
 }
-
 
 
 
@@ -130,5 +130,5 @@ const theme = {
 const getTheme = () => theme;
 
 
-export {colorPalette, getTheme}
+export {getColorPalette, getTheme}
 

@@ -1,6 +1,4 @@
 import { Button } from "primereact/button";
-import { colorPalette } from "../utilities";
-import { getTheme } from "../utilities";
 
 function Home() {
   return (
