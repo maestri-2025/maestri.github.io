@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+from tqdm import tqdm
 
 
 
@@ -24,9 +25,9 @@ if __name__ == "__main__":
     }
     """
 
-    df_tracks = pd.read_csv("output_tracks.csv", dtype={"geniusId": pd.Int64Dtype()}) # spotifyId,trackName,artistName,releaseDate,geniusId,geniusTrackName,geniusArtistName,geniusReleaseDate,trackLanguage
+    df_tracks = pd.read_csv("merged_datasets/df_tracks_merged.csv", dtype={"geniusId": pd.Int64Dtype()}) # spotifyId,trackName,artistName,releaseDate,geniusId,geniusTrackName,geniusArtistName,geniusReleaseDate,trackLanguage
     df_tracks= df_tracks[df_tracks["geniusId"].notna()].drop_duplicates(subset=["geniusId"])
-    df_contributions = pd.read_csv("output_contributions.csv", dtype={"geniusId": pd.Int64Dtype()})
+    df_contributions = pd.read_csv("merged_datasets/df_contributions_merged.csv", dtype={"geniusId": pd.Int64Dtype()})
     tracks_by_spotify_id = {}
     tracks_without_charting = []
     for i, t in df_tracks.iterrows(): 
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     #with open('tracks_by_spotify_id.json', 'w') as fp:
     #        json.dump(tracks_by_spotify_id, fp)
     
-    df_charting = pd.read_csv("output.csv") # Country,Week,spotifyId,trackName,artistName,releaseDate,currentRank,peakRank,weeksOnChart,numStreams,entryDate
+    df_charting = pd.read_csv("merged_datasets/df_charting_merged.csv") # Country,Week,spotifyId,trackName,artistName,releaseDate,currentRank,peakRank,weeksOnChart,numStreams,entryDate
     #df_tracks_with_charting = df_tracks.merge(df_charting, on=['spotifyId'])
     for i, c in df_charting.iterrows():
         spotify_id = c['spotifyId']
@@ -71,11 +72,9 @@ if __name__ == "__main__":
             continue
         t["chartings"].append(charting_info)
         tracks_by_spotify_id[spotify_id] = t
-    tracks = []
-    for spotify_id, t in tracks_by_spotify_id.items():
-        tracks.append(t)
-    for t in tracks_without_charting:
-        tracks.append(t)
+
+    tracks = list(tracks_by_spotify_id.values())
+    tracks.extend(tracks_without_charting)
 
     with open('tracks.json', 'w') as fp:
         json.dump(tracks, fp)
@@ -103,12 +102,13 @@ if __name__ == "__main__":
     """
     artists_by_id = {}
     # Assign primary artist contributions
-    for t in tracks:
+    for t in tqdm(tracks, desc="Assigning primary artist contributions"):
         if t['primary_artist_id'] in artists_by_id:
             artist = artists_by_id[t['primary_artist_id']]
             artist['contributions'].append({
                 'track_id': t['track_id'],
                 'track_name': t['name'],
+                'primary_artist_id': t['primary_artist_id'],
                 'contribution_type': 'primary'
                 })
             artists_by_id['primary_artist_id'] = artist
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                 "contributions": [{
                             'track_id': t['track_id'],
                             'track_name': t['name'],
-                            'track_artist_id': t['primary_artist_id'],
+                            'primary_artist_id': t['primary_artist_id'],
                             'contribution_type': 'primary'
                             }],
                 "contributors": []
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     # Assign contributions
     df_joined_contributions = df_tracks.merge(df_contributions, on="geniusId")
     # spotifyId,trackName,artistName,releaseDate,geniusId,geniusTrackName,geniusArtistName,geniusReleaseDate,trackLanguage,type,artistId,name
-    for i, t in df_joined_contributions.iterrows():
+    for i, t in tqdm(df_joined_contributions.iterrows(), desc="Assigning contributions"):
         if pd.isnull(t['name']): # TODO: make sure feature artists have their names
             continue
         # contributions by artist
@@ -148,7 +148,7 @@ if __name__ == "__main__":
             artists_by_id[contributing_artist_id] = artist
         else:
             artist = {
-                "genius_id" : contributing_artist_id,
+                "artist_id" : contributing_artist_id,
                 "name" : t['name'],
                 "image_link" : None,
                 "contributions": [{
@@ -173,7 +173,7 @@ if __name__ == "__main__":
             artists_by_id[primary_artist_id] = artist
         else:
             artist = {
-                "genius_id" : primary_artist_id,
+                "artist_id" : primary_artist_id,
                 "name" : t['geniusArtistName'],
                 "image_link" : None,
                 "contributions": [{
@@ -186,7 +186,7 @@ if __name__ == "__main__":
                 "contributors": []
                 }
             artists_by_id[primary_artist_id] = artist
-        artists = list(artists_by_id.values())
-        with open('artists.json', 'w') as fp:
-            json.dump(artists, fp)
+    artists = list(artists_by_id.values())
+    with open('artists.json', 'w') as fp:
+        json.dump(artists, fp)
         
