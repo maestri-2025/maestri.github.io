@@ -176,14 +176,14 @@ if __name__ == "__main__":
                 "artist_id" : primary_artist_id,
                 "name" : t['geniusArtistName'],
                 "image_link" : None,
-                "contributions": [{
+                "contributions": [],
+                "contributors": [{
                     'track_id': t['geniusId'],
                     'track_name': t['geniusTrackName'],
                     'contributor_artist_id': contributing_artist_id,
                     'contributor_name' : t['name'],
                     'contribution_type': t['type']
-                    }],
-                "contributors": []
+                    }]
                 }
             artists_by_id[primary_artist_id] = artist
     artists = list(artists_by_id.values())
