@@ -1,5 +1,5 @@
 import { ResponsiveNetwork } from '@nivo/network'
-import NetworkData from '../../../data/network.json'  
+import NetworkData from '../../../data/network_v3.json'  
 import { useState } from "react";
 import {animated, to} from "@react-spring/web";
 import { DataModel } from '../DataModel';
@@ -18,7 +18,7 @@ function Network(props: NetworkProps) {
     const [searchParams, setSearchParams] = useSearchParams();
     const idParam = searchParams.get("id");
 
-    const [artistId, setArtistId] = useState(idParam || "-4676264453581091479");
+    const [artistId, setArtistId] = useState(idParam || "1405");
     const biggest_global_contributor = Object.values(NetworkData).reduce(function(prev, current) {
         return (prev && prev.total_contributions > current.total_contributions) ? prev : current
     })
@@ -54,12 +54,17 @@ function Network(props: NetworkProps) {
                 linkThickness={n=>props.model.getEdgeSize(n.target.data, max_local_collaborations)}
                 motionConfig="slow"
                 onClick={clickedNode}
-                nodeComponent={n=>nodeComponent(n)}
+                nodeComponent={n=>nodeComponent(n, props)}
                 nodeTooltip={(node)=>{
-                let name = node.node.data.name
-                if (name == ""){
-                    name = "Name not found!"
+                let artist = props.model.getArtist(node.node.data.id)
+                let name = node.node.data.id
+                if (typeof artist == 'undefined'){
+                    // name = "Name not found!"
                 }
+                else {
+                    name = artist.name
+                }
+
                 return <div style={{backgroundColor: "#374151", borderRadius: "5px", padding: "5px"}}>{name}</div>
                 }}
                 distanceMin={20}
@@ -78,7 +83,7 @@ function Network(props: NetworkProps) {
 
 
 // TODO: this should be moved into it's own component and typed properly
-function nodeComponent(nodeIn){
+function nodeComponent(nodeIn,props: NetworkProps ){
     const  {
         node,
         animated: animatedProps,
@@ -88,13 +93,13 @@ function nodeComponent(nodeIn){
         onMouseLeave,
     } = nodeIn
 
-    const artistImageUrl = "https://images.genius.com/073372f6cd316f7c68b4c4b7d8c610c9.675x675x1.jpg"
+    var artistImageUrl = "https://images.genius.com/073372f6cd316f7c68b4c4b7d8c610c9.675x675x1.jpg"
     // TODO: Actually use the images when we have the genius ids for the artists
-    // if (typeof node.id == 'undefined'){
-    //   console.log(node)
-    // } else {
-    //   artistImageUrl = ArtistImages[node.id]["imageURL"]
-    // }
+    if (typeof node.id == 'undefined'){
+      console.log(node)
+    } else {
+      artistImageUrl = props.model.getArtist(node.id).image_url
+    }
 
   
     return <>
