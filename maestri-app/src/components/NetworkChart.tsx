@@ -3,6 +3,7 @@ import NetWorkNodeComponent from "./NetworkNodeComponent";
 import { Artist, NetworkNode } from "../utils/interfaces";
 import { DataModel } from "../DataModel";
 import {colorPalette} from "../utils/colorUtilities.ts";
+import {useEffect, useRef} from "react";
 
 interface NetworkChartProps {
     readonly model: DataModel;
@@ -17,21 +18,38 @@ function NetworkChart(props: NetworkChartProps) {
         return (prev && prev.total_contributions > current.total_contributions) ? prev : current
     })
     const maxContributions = biggestGlobalContributor.total_contributions
+    // console.log("maxContributions", maxContributions)
 
     const biggestLocalCollaborator = artistNetwork["nodes"].reduce((prev, current) => {
         return (prev && prev.num_collaborations > current.num_collaborations) ? prev : current
     })
     const maxLocalCollaborations = biggestLocalCollaborator.num_collaborations;
+    // console.log("maxLocalCollaborations", maxLocalCollaborations)
+
+    const numNodes = artistNetwork["nodes"].length;
+    console.log("numNodes", numNodes)
+
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            const { scrollWidth, scrollHeight, clientWidth, clientHeight } = scrollRef.current;
+            scrollRef.current.scrollLeft = (scrollWidth - clientWidth) / 2;
+            scrollRef.current.scrollTop = (scrollHeight - clientHeight) / 2;
+        }
+    }, [artistNetwork]);
 
     return (
-        <div style={{height: "540px", width: "540px", scale: "2", marginTop: "270px", marginLeft: "270px"}}>
+        <div ref={scrollRef} id={"networkGraph"} style={{height: "768px", width: "768px", overflowX: "scroll", overflowY:"scroll"}}>
             <ResponsiveNetwork
                 data={artistNetwork}
+                height={576}
+                width={576}
                 margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-                linkDistance={l=>(getEdgeDistance(l.source, l.target))}
+                linkDistance={l=> getEdgeDistance(l.source, l.target)}
                 centeringStrength={0.1}
                 repulsivity={20}
-                nodeSize={n=>getNodeSize(n, maxContributions)}
+                nodeSize={n=> getNodeSize(n, maxContributions)}
                 activeNodeSize={40}
                 nodeColor={colorPalette.amber}
                 nodeBorderWidth={1}

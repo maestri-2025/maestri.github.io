@@ -21,6 +21,7 @@ function Network(props: { readonly model: DataModel }) {
 
     const allArtists = props.model.getArtists();
     const [artist, setArtist] = useState(props.model.getArtist(selectedArtistId));
+    const history = (searchParams.get("history") == "" ? undefined : searchParams.get("history"))?.split(",") || [];
 
     const artistItemTemplate = (node: NetworkNode) => {
         const collaborator = props.model.getArtist(node.id)
@@ -67,21 +68,69 @@ function Network(props: { readonly model: DataModel }) {
 
     const history = searchParams.get("history")?.split(",") || [];
     return (
-        <div className='flex'>
+        <div className='flex flex-col' style={{gap: '1.5rem'}}>
             <div>
                 <br />
                 <Dropdown value={null} onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }} />
                 <h1>{artist.name}</h1>
                     <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
             </div>
+            {/*{ getArtistHistoryCards() }*/}
+            <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem'}}>
+                { getArtistHistoryCards() }
+                {/*<SingleArtistCard artist={props.model.getArtist(selectedArtistId)} />*/}
+            </div>
             <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
 
         </div>
     );
 
+    function getArtistHistoryCards() {
+        console.log([...history, selectedArtistId])
+
+        return [...history, selectedArtistId]
+          .map(id  => props.model.getArtist(id))
+          .map((artistInfo, idx)=> {
+              const artistImageLink = artistInfo.image_url || "https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1114445501.jpg";
+
+              const style = {
+                  width: "1.65rem",
+                  maxWidth: '1.65rem',
+                  minWidth: '1.65rem',
+                  height: '1rem',
+                  marginRight: '0rem',
+                  marginLeft: '0.75rem'
+              }
+
+              const content = (
+                <>
+                    <span data-id={idx} style={{cursor: "pointer", display: "flex", alignItems: "center"}} onClick={(e    ) => backTrackToIdx(Number(e.currentTarget.dataset.id))}>
+                        <img src={artistImageLink}  alt={'Asd'}/>
+                        <span className="ml-2 font-medium">{artistInfo.name}</span>
+                    </span>
+                    <Button className="rounded-lg" style={style} onClick={() => navigate('/artist?id=' + artistInfo.artist_id)} outlined icon="pi pi-user" tooltipOptions={{position: "bottom"}} tooltip="View Artist"/>
+                </>
+              );
+
+              return <Chip style={{borderRadius: "18px"}} template={content} />
+          }).reduce(((previousValue, currentValue) =>  {
+              return (
+                <>
+                    {previousValue}
+                    <span className="flex items-center"> <i className="pi pi-arrow-right"></i></span>
+                    {currentValue}
+                </>
+              )
+          }));
+    }
+
     function setNewArtist(e: DropdownChangeEvent) {
+        if (e.value.artist_id == searchParams.get("id")) return;
+        const newHistory = [...history, searchParams.get("id")]
         setSearchParams(prev => {
-            prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
+            if (newHistory.length > 0)
+                prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
+            else prev.delete("history");
             prev.set("id", e.value.artist_id);
             return prev;
         });
@@ -89,12 +138,29 @@ function Network(props: { readonly model: DataModel }) {
     }
 
     function clickedNode(node: ComputedNode<NetworkNode>) {
+        if (node.id == searchParams.get("id")) return;
+        const newHistory = [...history, searchParams.get("id")]
         setSearchParams(prev => {
-            prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
+            if (newHistory.length > 0)
+                prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
+            else prev.delete("history");
             prev.set("id", node.id);
             return prev;
         });
         setArtist(props.model.getArtist(node.id));
+    }
+
+    function backTrackToIdx(idx: number) {
+        //? selected current artist
+        if (idx === history.length) return;
+        setSearchParams(prev => {
+            if (idx === 0) prev.delete("history");
+            else prev.set("history", history.slice(0, idx).join(","));
+
+            prev.set("id", history[idx]);
+            return prev;
+        });
+        setArtist(props.model.getArtist(history[idx]));
     }
 
     function trackDisplay(track: Track, artist: Artist) {
