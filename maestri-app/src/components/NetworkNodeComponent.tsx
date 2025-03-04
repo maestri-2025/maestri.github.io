@@ -12,15 +12,8 @@ function NetWorkNodeComponent(nodeIn: NodeProps<NetworkNode>, model: DataModel )
         onMouseMove,
         onMouseLeave,
     } = nodeIn
+    const artistImageUrl = model.getArtist(node.id).image_url || "https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1114445501.jpg"
 
-    let artistImageUrl = "https://images.genius.com/073372f6cd316f7c68b4c4b7d8c610c9.675x675x1.jpg"
-    if (typeof node.id == 'undefined'){
-      console.log(node)
-    } else {
-      artistImageUrl = model.getArtist(node.id).image_url
-    }
-
-  
     return <>
         <defs>
         <clipPath id={`circle-clip-${node.id}`} clipPathUnits="objectBoundingBox">
