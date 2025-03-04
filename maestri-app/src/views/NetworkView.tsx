@@ -17,10 +17,10 @@ import { getColorPalette } from '../utils/colorUtilities';
 function Network(props: { readonly model: DataModel }) {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
-    const idParam = searchParams.get("id");
+    const selectedArtistId = searchParams.get("id") || "1405";
 
-    const [artist, setArtist] = useState(idParam ? props.model.getArtist(idParam) : props.model.getArtist("1405"));
     const allArtists = props.model.getArtists();
+    const [artist, setArtist] = useState(props.model.getArtist(selectedArtistId));
 
     const artistItemTemplate = (node: NetworkNode) => {
         const collaborator = props.model.getArtist(node.id)
@@ -34,22 +34,22 @@ function Network(props: { readonly model: DataModel }) {
         return (
             <Panel header={
                 <div>
+                        <img style={{
                     <div className="flex flex-row" style={{ fontSize: "150%", marginBottom: 2 }}>{collaborator.name}</div>
                     <div className="flex flex-row">
-                        <img style={{
                             width: 75,
                             height: 75,
-                        }} src={collaboratorImageLink} alt={collaborator.name} />
 
+                        }} src={collaboratorImageLink} alt={collaborator.name} />
                         <div>
                             {
-                                contributionTypesCounts.map(([type, count]: [string, number]) => {
                                     return <Chip className={`chip-${type}-${collaborator.artist_id}`} style={{ fontSize: "70%", margin: 1 }} label={`${type}: ${count}`} />
-                                })
+                                contributionTypesCounts.map(([type, count]: [string, number]) => {
                             }
+                                })
                             {
-                                contributionTypesCounts.map(([type, _]: [string, number]) => {
                                     return <Tooltip target={`.chip-${type}-${collaborator.artist_id}`} content={`How many ${type} credits ${collaborator.name} has on songs that ${artist.name} has contributed to`} />
+                                contributionTypesCounts.map(([type, _]: [string, number]) => {
                                 })
                             }
                         </div>
@@ -65,23 +65,14 @@ function Network(props: { readonly model: DataModel }) {
     }
     const collaborators = props.model.networkData[artist.artist_id]["nodes"].filter((n) => n.id != artist.artist_id).sort((a, b) => -(a.num_collaborations - b.num_collaborations))
 
+    const history = searchParams.get("history")?.split(",") || [];
     return (
         <div className='flex'>
             <div>
                 <br />
                 <Dropdown value={null} onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }} />
                 <h1>{artist.name}</h1>
-                <Button onClick={() => navigate('/comparison?ids=' + artist.artist_id)} label={"Compare artists"} icon="pi pi-user" rounded outlined />
-                <Button onClick={() => navigate('/artist?id=' + artist.artist_id)} label={"View"} icon="pi pi-star" rounded outlined />
-                <br />
-                <br />
-                <div className='width-100'>*Node size is determined by overall number of credits</div>
-                <br />
-                <br />
-                <div className='width-100'>*Distance from center node and edge thickness are determined by contributions to {artist.name}</div>
-                <div>
                     <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
-                </div>
             </div>
             <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
 
@@ -89,19 +80,21 @@ function Network(props: { readonly model: DataModel }) {
     );
 
     function setNewArtist(e: DropdownChangeEvent) {
-        // update search params
-        const newQueryParameters: URLSearchParams = new URLSearchParams();
-        newQueryParameters.set("id", e.value.artist_id)
-        setSearchParams(newQueryParameters);
-        setArtist(props.model.getArtist(e.value.artist_id))
+        setSearchParams(prev => {
+            prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
+            prev.set("id", e.value.artist_id);
+            return prev;
+        });
+        setArtist(props.model.getArtist(e.value.artist_id));
     }
 
     function clickedNode(node: ComputedNode<NetworkNode>) {
-        // update search params
-        const newQueryParameters: URLSearchParams = new URLSearchParams();
-        newQueryParameters.set("id", node.id)
-        setSearchParams(newQueryParameters);
-        setArtist(props.model.getArtist(node.id))
+        setSearchParams(prev => {
+            prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
+            prev.set("id", node.id);
+            return prev;
+        });
+        setArtist(props.model.getArtist(node.id));
     }
 
     function trackDisplay(track: Track, artist: Artist) {
