@@ -1,5 +1,5 @@
 import { ComputedNode } from '@nivo/network'
-import { useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { DataModel } from '../DataModel';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from 'primereact/button';
@@ -68,21 +68,26 @@ function Network(props: { readonly model: DataModel }) {
 
     const history = searchParams.get("history")?.split(",") || [];
     return (
-        <div className='flex flex-col' style={{gap: '1.5rem'}}>
-            <div>
-                <br />
-                <Dropdown value={null} onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }} />
-                <h1>{artist.name}</h1>
-                    <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
-            </div>
-            {/*{ getArtistHistoryCards() }*/}
-            <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem'}}>
-                { getArtistHistoryCards() }
-                {/*<SingleArtistCard artist={props.model.getArtist(selectedArtistId)} />*/}
-            </div>
-            <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
-
+      <div className='grid grid-cols-9'>
+        <div className='flex flex-col col-span-6' style={{gap: '1rem', padding: '1rem'}}>
+          <br/>
+          <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem'}}>
+            { getArtistHistoryCards() }
+          </div>
+          <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
         </div>
+
+        <div className='flex flex-col col-span-3' style={{gap: '1rem',padding: '1rem'}}>
+          <br/>
+          <Dropdown value={null}  onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }}/>
+          <h1>{artist.name}</h1>
+          <div className='width-100'>*Node size is determined by overall number of credits</div>
+          <br/>
+          <br/>
+          <div className='width-100'>*Distance from center node and edge thickness are determined by contributions to {artist.name}</div>
+        </div>
+      </div>
+        <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
     );
 
     function getArtistHistoryCards() {
@@ -106,13 +111,20 @@ function Network(props: { readonly model: DataModel }) {
                 <>
                     <span data-id={idx} style={{cursor: "pointer", display: "flex", alignItems: "center"}} onClick={(e    ) => backTrackToIdx(Number(e.currentTarget.dataset.id))}>
                         <img src={artistImageLink}  alt={'Asd'}/>
-                        <span className="ml-2 font-medium">{artistInfo.name}</span>
+                        <span className="whitespace-nowrap font-medium">{artistInfo.name}</span>
                     </span>
                     <Button className="rounded-lg" style={style} onClick={() => navigate('/artist?id=' + artistInfo.artist_id)} outlined icon="pi pi-user" tooltipOptions={{position: "bottom"}} tooltip="View Artist"/>
                 </>
               );
 
-              return <Chip style={{borderRadius: "18px"}} template={content} />
+              const chipStyle = {
+                  borderRadius: "18px",
+                  border: idx === history.length ? "2px solid rgb(196, 149, 27)" : "0"
+              }
+
+              console.log(idx === history.length)
+
+              return <Chip style={chipStyle} template={content} />
           }).reduce(((previousValue, currentValue) =>  {
               return (
                 <>
@@ -126,11 +138,9 @@ function Network(props: { readonly model: DataModel }) {
 
     function setNewArtist(e: DropdownChangeEvent) {
         if (e.value.artist_id == searchParams.get("id")) return;
-        const newHistory = [...history, searchParams.get("id")]
+
         setSearchParams(prev => {
-            if (newHistory.length > 0)
-                prev.set("history", [...history, searchParams.get("id")].splice(-5).join(","));
-            else prev.delete("history");
+            prev.delete("history");
             prev.set("id", e.value.artist_id);
             return prev;
         });

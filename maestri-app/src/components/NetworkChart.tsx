@@ -40,7 +40,7 @@ function NetworkChart(props: NetworkChartProps) {
     }, [artistNetwork]);
 
     return (
-        <div ref={scrollRef} id={"networkGraph"} style={{height: "768px", width: "768px", overflowX: "scroll", overflowY:"scroll"}}>
+        <div ref={scrollRef} id={"networkGraph"} style={{height: "768px", width: "100%", overflowX: "scroll", overflowY:"scroll"}}>
             <ResponsiveNetwork
                 data={artistNetwork}
                 height={576}
