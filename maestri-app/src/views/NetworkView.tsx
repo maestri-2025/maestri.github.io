@@ -71,7 +71,7 @@ function Network(props: { readonly model: DataModel }) {
       <div className='grid grid-cols-9'>
         <div className='flex flex-col col-span-6' style={{gap: '1rem', padding: '1rem'}}>
           <br/>
-          <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem'}}>
+          <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem', padding: "0.25rem 0"}}>
             { getArtistHistoryCards() }
           </div>
           <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
@@ -110,7 +110,9 @@ function Network(props: { readonly model: DataModel }) {
               const content = (
                 <>
                     <span data-id={idx} style={{cursor: "pointer", display: "flex", alignItems: "center"}} onClick={(e    ) => backTrackToIdx(Number(e.currentTarget.dataset.id))}>
-                        <img src={artistImageLink}  alt={'Asd'}/>
+                        <span style={{height: "2.5rem", width: "2.5rem"}}>
+                          <img style={{height: "100%", width: "100%", objectFit: "cover"}} src={artistImageLink}  alt={'Asd'}/>
+                        </span>
                         <span className="whitespace-nowrap font-medium">{artistInfo.name}</span>
                     </span>
                     <Button className="rounded-lg" style={style} onClick={() => navigate('/artist?id=' + artistInfo.artist_id)} outlined icon="pi pi-user" tooltipOptions={{position: "bottom"}} tooltip="View Artist"/>
@@ -118,8 +120,8 @@ function Network(props: { readonly model: DataModel }) {
               );
 
               const chipStyle = {
-                  borderRadius: "18px",
-                  border: idx === history.length ? "2px solid rgb(196, 149, 27)" : "0"
+                  borderRadius: "22px",
+                  border: idx === history.length ? "2px solid rgb(196, 149, 27)" : "2px solid #111827"
               }
 
               console.log(idx === history.length)
