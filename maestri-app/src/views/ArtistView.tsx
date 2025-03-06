@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import SingleArtistCard from '../components/SingleArtistCard';
 import { Button } from 'primereact/button';
 import HeatMapBar from '../components/HeatMapBar';
+import ScatterPlot from '../components/ScatterPlot';
 
 
 interface ArtistProps {
@@ -126,8 +127,8 @@ function Artist(props: ArtistProps) {
                             </div>
                         </div>
                     </div>
-                    <div>
-                        Scatter plot here
+                    <div style={{height: '40vh'}}>
+                        <ScatterPlot artist={currentArtist} currentTracks={chartingTracks} country='GLOBAL' currentWeek={props.model.allWeeks[currentIndex]}></ScatterPlot>
                     </div>
                 </div>
                 <div className='col-span-3'>
