@@ -81,6 +81,11 @@ export class DataModel {
         return result;
     }
 
+    getTracksForArtist(artistId: string) {
+        const contributionIds = [...new Set(this.artists[artistId].contributions.map((cont) => { return cont.song_id.toString() }))];
+        return this.getSpecificTracks(contributionIds);
+    }
+
     generateMapDataForWeek(week: string, artistId: string) {
         const tracksForWeek = this.filterTracksByWeekAndArtist(week, artistId);
       

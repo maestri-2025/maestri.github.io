@@ -83,7 +83,7 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
                 checkmark={true}
                 highlightOnSelect={false}
             />
-            <div style={{height: '40vh'}}>
+            <div style={{height: '50vh'}}>
             <ResponsiveScatterPlot
                 data={data}
                 margin={{ top: 50, right: 50, bottom: 100, left: 100 }}

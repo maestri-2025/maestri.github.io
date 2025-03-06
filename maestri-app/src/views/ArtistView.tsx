@@ -89,74 +89,97 @@ function Artist(props: ArtistProps) {
     // };
   
     return (
-        <div>
+        <div className="flex flex-col" style={{padding: "1rem", gap: "1.25rem"}}>
             <div className='grid grid-cols-5'>
                 <div className='col-span-2'>
                     <div style={{ margin: '10px 20px 0px 10px'}}>
                         <Dropdown
-                            style={{ width: '50%'}}
-                            value={currentArtist}
-                            onChange={selectArtist}
-                            options={props.model.getArtists()} //hardcoded just to test shifting artist
-                            optionLabel="name"
-                            placeholder={currentArtist.name}
-                            checkmark={true}
-                            highlightOnSelect={false}
-                            filter
-                            virtualScrollerOptions={{ itemSize: 38 }}
+                          style={{ width: '50%'}}
+                          value={currentArtist}
+                          onChange={selectArtist}
+                          options={props.model.getArtists()} //hardcoded just to test shifting artist
+                          optionLabel="name"
+                          placeholder={currentArtist.name}
+                          checkmark={true}
+                          highlightOnSelect={false}
+                          filter
+                          virtualScrollerOptions={{ itemSize: 38 }}
                         />
                     </div>
                     <div className='grid grid-cols-2'>
                         <div>
                             <SingleArtistCard  artist={currentArtist} comparable networkable ></SingleArtistCard>
                         </div>
-                        <div style={{height: '40vh'}}>
-                            <h2 style={{ color: getColorPalette().amber, margin: '10px' }}>Globally charting {props.model.allWeeks[currentIndex]} <br></br>Total track(s): {chartingTracks.length}</h2>
-                            <div style={{ overflowY: 'scroll', paddingRight: '10px', maxHeight: '30vh'}}>
-                                    {chartingTracks.length === 0 ? (
-                                        <p>No charting tracks for this week.</p>
-                                    ) : (
-                                        // chartingTracks.map((track) => (
-                                        //     <div key={track.track_id} className='flex items-center justify-between' style={{margin: '10px'}}>
-                                        //         <img src={track.image_url} height={50}></img>
-                                        //         <strong style={{ color: getColorPalette().amber }}>{track.name}</strong>
-                                        //         <div>
-                                        //             <div>{track.primary_artist_name}</div>
-                                        //             <div>Contribution: </div>
-                                        //         </div>
-                                        //     </div>
-                                        // ))
-                                        chartingTracks.map(trackDisplay)
-                                    )}
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{height: '40vh'}}>
-                        <ScatterPlot artist={currentArtist} currentTracks={chartingTracks} country='GLOBAL' currentWeek={props.model.allWeeks[currentIndex]}></ScatterPlot>
                     </div>
                 </div>
-                <div className='col-span-3'>
-                    <div className='clipped'>
-                        <ChoroplethChart mapData={mapData} />   
+            </div>
+            <div>
+                <h1>Songs Stats</h1>
+                <div className='grid grid-cols-5' style={{gap: "1rem"}}>
+                    <div className='col-span-3'>
+                        <div style={{height: '50vh'}}>
+                            <ScatterPlot artist={currentArtist} currentTracks={chartingTracks} country='GLOBAL' currentWeek={props.model.allWeeks[currentIndex]}></ScatterPlot>
+                        </div>
                     </div>
-                    <h3 style={{ color: getColorPalette().amber, margin: '10px' }}>{props.model.allWeeks[currentIndex]}</h3>
-                    <div className='flex items-center'>
-                        { timelineButton() }
-                        <div style={{ marginLeft: '20px', width: '100%'}}>
-                            <HeatMapBar artist={currentArtist} model={props.model}></HeatMapBar>
-                            <div style={{margin: '0px 5px'}}>
-                                <Slider
-                                    value={currentIndex}
-                                    min={0}
-                                    max={props.model.allWeeks.length - 1}
-                                    onChange={handleSliderChange}
-                                    //onSlideEnd={handleSliderEnd}
-                                />
+                    <div className='col-span-2'>
+                        <div style={{height: '50vh'}}>
+                            <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}> All songs </h2>
+                            <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "100%"}}>
+                                { props.model.getTracksForArtist(currentArtist.artist_id).map(trackDisplay) }
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div>
+                <h1>Chartings</h1>
+                <div className='grid grid-cols-5'>
+                    <div className='col-span-2'>
+                        <div style={{height: '40vh'}}>
+                            <h2 style={{ color: getColorPalette().amber, margin: '10px' }}>Globally charting {props.model.allWeeks[currentIndex]} <br></br>Total track(s): {chartingTracks.length}</h2>
+                            <div style={{ overflowY: 'scroll', paddingRight: '10px', maxHeight: '30vh'}}>
+                                {chartingTracks.length === 0 ? (
+                                  <p>No charting tracks for this week.</p>
+                                ) : (
+                                  // chartingTracks.map((track) => (
+                                  //     <div key={track.track_id} className='flex items-center justify-between' style={{margin: '10px'}}>
+                                  //         <img src={track.image_url} height={50}></img>
+                                  //         <strong style={{ color: getColorPalette().amber }}>{track.name}</strong>
+                                  //         <div>
+                                  //             <div>{track.primary_artist_name}</div>
+                                  //             <div>Contribution: </div>
+                                  //         </div>
+                                  //     </div>
+                                  // ))
+                                  chartingTracks.map(trackDisplay)
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className='col-span-3'>
+                        <div className='clipped'>
+                            <ChoroplethChart mapData={mapData} />
+                        </div>
+                        <h3 style={{ color: getColorPalette().amber, margin: '10px' }}>{props.model.allWeeks[currentIndex]}</h3>
+                        <div className='flex items-center'>
+                            { timelineButton() }
+                            <div style={{ marginLeft: '20px', width: '100%'}}>
+                                <HeatMapBar artist={currentArtist} model={props.model}></HeatMapBar>
+                                <div style={{margin: '0px 5px'}}>
+                                    <Slider
+                                      value={currentIndex}
+                                      min={0}
+                                      max={props.model.allWeeks.length - 1}
+                                      onChange={handleSliderChange}
+                                      //onSlideEnd={handleSliderEnd}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 
@@ -174,13 +197,13 @@ function Artist(props: ArtistProps) {
 
         function artistInfo () {
             if (isPrimary) {
-                return (
-                    <div>
-                        { contributions.map((cont) => {
-                            return (<div>{cont.type}</div>)
-                        })}
-                    </div>
-                )
+                // return (
+                //     <div>
+                //         { contributions.map((cont) => {
+                //             return (<div>{cont.type}</div>)
+                //         })}
+                //     </div>
+                // )
             } else {
                 return (
                     <div className='flex'>
@@ -192,13 +215,15 @@ function Artist(props: ArtistProps) {
         }
 
         return (
-            <div key={track.track_id} className='flex items-center' style={{margin: '10px'}}>
+            <div key={track.track_id} className='flex items-center'>
                 <img src={track.image_url} height={50}></img>
                 <div style={{margin: '3px'}}>
                     <strong style={{ color: getColorPalette().amber }}>{track.name}</strong>
                     <div className='flex'>
                         { contributions.map((cont) => {
-                            return (<div>{cont.type}</div>)
+                            return (
+                              <span style={{backgroundColor: "#424b57", borderRadius: "20px", padding: "0.25rem 0.5rem", fontSize: "80%"}}>{cont.type}</span>
+                            )
                         })}
                     </div>
                 </div>
