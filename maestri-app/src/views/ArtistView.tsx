@@ -18,15 +18,19 @@ interface ArtistProps {
 
 function Artist(props: ArtistProps) {
     const [searchParams, setSearchParams] = useSearchParams();
-    const artistId = searchParams.get("id");
     const navigate = useNavigate();
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(true);
-    const [currentArtist, setCurrentArtist] = useState(artistId ? props.model.getArtist(artistId) : props.model.getArtist('45'));
+    const [currentArtist, setCurrentArtist] = useState(props.model.getArtist(searchParams.get("id") || '45'));
     const [mapData, setMapData] = useState(props.model.generateMapDataForWeek(props.model.allWeeks[0], currentArtist.artist_id));
     const [chartingTracks, setChartingTracks] = useState<Track[]>([]);
     
+    // update current artist when id changes
+    useEffect(() => {
+        setCurrentArtist(props.model.getArtist(searchParams.get("id") || '45'))
+    }, [searchParams]);
+
     // compute all map data for each week when artistName changes 
     const allMapData = useMemo(() => {
         return props.model.allWeeks.map((week) => props.model.generateMapDataForWeek(week, currentArtist.artist_id));
