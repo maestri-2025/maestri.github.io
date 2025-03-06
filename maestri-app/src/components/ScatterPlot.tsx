@@ -21,9 +21,10 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
             label: "total countries",
             computation: (track: Track) => (new Set(track.chartings.map((chart) => chart.country))).size
         },
-        {
-            label: "release date",
-        },
+        // {
+        //     label: "release date",
+        //     computation: (track: Track) => track.release_date
+        // },
         {
             label: "current rank",
             computation: (track: Track) => track.chartings.find((chart) => chart.country === props.country && chart.week === props.currentWeek)?.rank || 0
@@ -38,27 +39,25 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
     const [data, setData] = useState([]);
 
     function buildData() {
-        const newData = [];
-        const artistResult = { "id": props.artist.artist_id }
-        const artistData = [];
-        props.currentTracks.forEach((track) => {
-            artistData.push(
-                {
-                    "x": xAxis.computation(track),
-                    "y": yAxis.computation(track)
-                }
-            );
-        });
-        artistResult['data'] = artistData;
-        newData.push(artistResult);
-        return newData;
+      return  props.currentTracks.map(track => (
+        {
+          id: track.name,
+          data: [
+            {
+              "x": xAxis.computation(track),
+              "y": yAxis.computation(track)
+            }
+          ]
+        }
+      ))
     }
 
     useEffect(() => {
-        setData(buildData())
-        console.log(buildData())
+        const data = buildData()
+        setData(data)
+        // console.log(buildData())
         console.log(data)
-    }, [xAxis, yAxis])
+    }, [xAxis, yAxis, props])
     
 
 
