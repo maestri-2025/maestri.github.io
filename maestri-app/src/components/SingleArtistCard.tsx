@@ -35,7 +35,7 @@ function SingleArtistCard(props: SingleAristProps) {
     }
     if (props.comparable) {
         buttons.push(
-            <Button style={{ marginRight: '10px' }} onClick={() => navigate('/comparison?id=' + props.artist.artist_id)} icon="pi pi-users" outlined aria-label="Cancel" tooltip="Compare Artists"/>
+            <Button style={{ marginRight: '10px' }} onClick={() => navigate('/comparison?ids=' + props.artist.artist_id)} icon="pi pi-users" outlined aria-label="Cancel" tooltip="Compare Artists"/>
         )
     }
     if (props.networkable) {

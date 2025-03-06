@@ -30,11 +30,11 @@ function ChordChart(props: { readonly artists: Array<Artist>, readonly model: Da
     })
 
     return (
-        <div style={{height: '400px', width: '500px'}}>
+        <div style={{height: '37vh'}}>
             <ResponsiveChord
                 data={data}
                 keys={props.artists.map((art) => { return art.name})}
-                margin={{ top: 40, right: 60, bottom: 40, left: 80 }}
+                margin={{ top: 30, right: 40, bottom: 30, left: 40 }}
                 valueFormat=".2f"
                 inactiveArcOpacity={0.25}
                 padAngle={0.02}

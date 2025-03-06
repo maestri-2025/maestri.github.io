@@ -28,7 +28,7 @@ function Comparison(props: { readonly model: DataModel }) {
 
     return (
         <>
-            <div className="grid grid-cols-7 justify-around">
+            <div className="grid grid-cols-7 justify-around" style={{overflow: 'scroll', maxHeight: '45vh'}}>
                 { currentArtists.map(singleArtist) }
                 { addArtistCard() }
                 <div key={'comparison-chart'} className="col-span-2">

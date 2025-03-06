@@ -34,7 +34,7 @@
 }
 
 .header-image {
-  height: 22vh; 
+  max-height: 21vh; 
   width: 100%; 
   overflow-y: hidden;
   border-radius: 10px 10px 0px 0px;
