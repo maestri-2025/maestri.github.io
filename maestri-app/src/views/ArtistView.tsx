@@ -86,10 +86,6 @@ function Artist(props: ArtistProps) {
             return (<Button onClick={handleTogglePause} icon="pi pi-pause" aria-label="Play" rounded/>);
         }
     }
-
-    // const handleSliderEnd = () => {
-    //   setIsPaused(false); // Resume when slider is released
-    // };
   
     return (
         <div className="flex flex-col" style={{padding: "1rem", gap: "1.25rem"}}>
@@ -120,16 +116,21 @@ function Artist(props: ArtistProps) {
                 <h1>Songs Stats</h1>
                 <div className='grid grid-cols-5' style={{gap: "1rem"}}>
                     <div className='col-span-3'>
-                        <Dropdown
-                          style={{ width: '50%'}}
-                          value={selectedCountry.label}
-                          onChange={(e) => setSelectedCountry(e.value)}
-                          options={countryMappings}
-                          optionLabel="label"
-                          placeholder={selectedCountry.label}
-                          checkmark={true}
-                          highlightOnSelect={false}
-                        />
+                        <div className="flex flex-row" style={{gap: "1rem", alignItems: "center"}}>
+                            <div>
+                                Data Selection:
+                            </div>
+                            <Dropdown
+                              style={{ width: '50%'}}
+                              value={selectedCountry.label}
+                              onChange={(e) => setSelectedCountry(e.value)}
+                              options={countryMappings}
+                              optionLabel="label"
+                              placeholder={selectedCountry.label}
+                              checkmark={true}
+                              highlightOnSelect={false}
+                            />
+                        </div>
                         <div style={{height: '50vh'}}>
                             <ScatterPlot artist={currentArtist} currentTracks={
                                 props.model.getTracksForArtist(currentArtist.artist_id)
@@ -221,7 +222,7 @@ function Artist(props: ArtistProps) {
                   {acc}
                   {" & "}
                   {i}
-                  </>
+              </>
           })
 
         return (

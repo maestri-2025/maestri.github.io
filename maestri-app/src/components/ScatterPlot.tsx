@@ -1,11 +1,12 @@
 // install (please try to align the version of installed @nivo packages)
 // yarn add @nivo/scatterplot
-import { ResponsiveScatterPlot } from '@nivo/scatterplot'
-import { getTheme } from '../utils/colorUtilities';
-import { Artist, Track } from '../utils/interfaces';
-import { Dropdown } from 'primereact/dropdown';
-import { useEffect, useState } from 'react';
-import {CountryDetails, countryMappings} from "../utils/mapUtilities.ts";
+import {ResponsiveScatterPlot} from '@nivo/scatterplot'
+import {getTheme} from '../utils/colorUtilities';
+import {Artist, Track} from '../utils/interfaces';
+import {Dropdown} from 'primereact/dropdown';
+import {useEffect, useState} from 'react';
+import {CountryDetails} from "../utils/mapUtilities.ts";
+import {Button} from "primereact/button";
 
 function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, currentWeek: string, country: CountryDetails}) {
 
@@ -13,18 +14,18 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
         return null;
     }
 
-    console.log(props)
+    // console.log(props)
     const axisOptions = [
         {
-            label: "total credits",
+            label: "Team Size",
             computation: (track: Track) => track.credits.length
-        }, 
+        },
         {
-            label: "total countries",
+            label: "Number of Charting Countries",
             computation: (track: Track) => (new Set(track.chartings.map((chart) => chart.country))).size
         },
         {
-            label: "peak rank",
+            label: "Peak Rank",
             computation: (track: Track, country: CountryDetails) => {
               return Math.max(...track.chartings
                 .filter(chart => props.country.spotifyCode !== null ? chart.country === country.spotifyCode : true)
@@ -32,7 +33,7 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
             }
         },
         {
-            label: "peak number of weeks",
+            label: "Number of charting weeks",
             computation: (track: Track, country: CountryDetails) => {
               return Math.max(...track.chartings
                 .filter(chart => props.country.spotifyCode !== null ? chart.country === country.spotifyCode : true)
@@ -60,95 +61,103 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
 
     useEffect(() => {
         const data = buildData()
-        console.log("running effect", props, "data", data)
+        // console.log("running effect", props, "data", data)
         setData(data)
         // console.log(buildData())
         // console.log(data)
     }, [xAxis, yAxis, props.country])
-    
+
 
 
     return (
-        <div>
-            <Dropdown
-                style={{ width: '50%'}}
-                value={xAxis.label}
-                onChange={(e) => setXAxis(e.value)}
-                options={axisOptions}
-                optionLabel="label"
-                placeholder={xAxis.label}
-                checkmark={true}
-                highlightOnSelect={false}
-            />
-            <Dropdown
-                style={{ width: '50%'}}
-                value={yAxis.label}
-                onChange={(e) => setYAxis(e.value)}
-                options={axisOptions}
-                optionLabel="label"
-                placeholder={yAxis.label}
-                checkmark={true}
-                highlightOnSelect={false}
-            />
-            <div style={{height: '50vh'}}>
+        <div style={{height: '100%'}}>
+          <div style={{height: "90%"}}>
             <ResponsiveScatterPlot
-                data={data}
-                margin={{ top: 50, right: 50, bottom: 100, left: 100 }}
-                xScale={{ type: 'linear', min: 0, max: 'auto' }}
-                xFormat=">-.2f"
-                yScale={{ type: 'linear', min: 0, max: 'auto' }}
-                yFormat=">-.2f"
-                axisTop={null}
-                axisRight={null}
-                theme={getTheme()}
-                colors={"#fbbf23"}
-                useMesh={false}
-                axisBottom={{
-                    orient: 'bottom',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: xAxis.label,
-                    legendPosition: 'middle',
-                    legendOffset: 46,
-                    truncateTickAt: 0
-                }}
-                axisLeft={{
-                    orient: 'left',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: yAxis.label,
-                    legendPosition: 'middle',
-                    legendOffset: -60,
-                    truncateTickAt: 0
-                }}
-                // legends={[
-                //     {
-                //         anchor: 'bottom-right',
-                //         direction: 'column',
-                //         justify: false,
-                //         translateX: 130,
-                //         translateY: 0,
-                //         itemWidth: 100,
-                //         itemHeight: 12,
-                //         itemsSpacing: 5,
-                //         itemDirection: 'left-to-right',
-                //         symbolSize: 12,
-                //         symbolShape: 'circle',
-                //         effects: [
-                //             {
-                //                 on: 'hover',
-                //                 style: {
-                //                     itemOpacity: 1
-                //                 }
-                //             }
-                //         ]
-                //     }
-                // ]}
+              data={data}
+              margin={{ top: 25, right: 25, bottom: 70, left: 70 }}
+              xScale={{ type: 'linear', min: 0, max: 'auto' }}
+              xFormat=">-.2f"
+              yScale={{ type: 'linear', min: 0, max: 'auto' }}
+              yFormat=">-.2f"
+              axisTop={null}
+              axisRight={null}
+              theme={getTheme()}
+              colors={"#fbbf23"}
+              useMesh={false}
+              axisBottom={{
+                orient: 'bottom',
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legend: xAxis.label,
+                legendPosition: 'middle',
+                legendOffset: 46,
+                truncateTickAt: 0
+              }}
+              axisLeft={{
+                orient: 'left',
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legend: yAxis.label,
+                legendPosition: 'middle',
+                legendOffset: -60,
+                truncateTickAt: 0
+              }}
+              // legends={[
+              //     {
+              //         anchor: 'bottom-right',
+              //         direction: 'column',
+              //         justify: false,
+              //         translateX: 130,
+              //         translateY: 0,
+              //         itemWidth: 100,
+              //         itemHeight: 12,
+              //         itemsSpacing: 5,
+              //         itemDirection: 'left-to-right',
+              //         symbolSize: 12,
+              //         symbolShape: 'circle',
+              //         effects: [
+              //             {
+              //                 on: 'hover',
+              //                 style: {
+              //                     itemOpacity: 1
+              //                 }
+              //             }
+              //         ]
+              //     }
+              // ]}
             />
-            </div>
+          </div>
+          <div className="flex flex-row" style={{maxHeight: "10%", gap: "1rem", padding: "0 0.5rem"}} >
+            <Dropdown
+              style={{ width: '100%'}}
+              value={xAxis.label}
+              onChange={(e) => setXAxis(e.value)}
+              options={axisOptions}
+              optionLabel="label"
+              placeholder={xAxis.label}
+              checkmark={true}
+              highlightOnSelect={false}
+            />
+            <Button style={{padding: "0.75rem"}} onClick={() => {
+              const tXAxis = xAxis;
+              setXAxis(yAxis)
+              setYAxis(tXAxis)
 
+              console.log("HELLO")
+            }} icon="pi pi-arrow-right-arrow-left" outlined tooltip="Switch Axis"/>
+            <Dropdown
+              style={{ width: '100%'}}
+              value={yAxis.label}
+              onChange={(e) => setYAxis(e.value)}
+              options={axisOptions}
+              optionLabel="label"
+              placeholder={yAxis.label}
+              checkmark={true}
+              highlightOnSelect={false}
+            />
+          </div>
         </div>
 
     )
