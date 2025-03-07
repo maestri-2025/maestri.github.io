@@ -5,12 +5,30 @@ import App from './App.tsx'
 import { PrimeReactProvider } from 'primereact/api'
 import { DataModel } from './DataModel.ts'
 
-const dataModel = new DataModel();
 
-createRoot(document.getElementById('root')!).render(
+
+const root = createRoot(document.getElementById('root')!);
+
+root.render(
   <StrictMode>
     <PrimeReactProvider value={{ unstyled: false }}>
-      <App model={dataModel}/>
+        <p>Loading...</p>
     </PrimeReactProvider>
-  </StrictMode>,
-)
+  </StrictMode>
+);
+
+
+const initializeApp = async () => {
+  const dataModel = new DataModel();
+  await dataModel.loadData();
+
+  root.render(
+    <StrictMode>
+      <PrimeReactProvider value={{ unstyled: false }}>
+        <App model={dataModel}/>
+      </PrimeReactProvider>
+    </StrictMode>
+  );
+};
+
+initializeApp()

@@ -1,42 +1,50 @@
 import { Artist, Network, Track } from "./utils/interfaces";
-import artistsJson from "../../data/artists_v3.json";
-import tracksJson from "../../data/tracks_v2.json";
-import networkJson from '../../data/network_v3.json'
 import { countryCodeMapping } from "./utils/mapUtilities";
 import { nivoDarkColorPalette } from "./utils/colorUtilities";
 import { getBarKeyLabelsFromType } from "./utils/dataUtilities";
 
-
-// hotfix (am i using this word correctly) to convert array to an object with track_id as keys which makes the map work again
-// @ts-expect-error invalie JSON but it still works
-const tracksObject: { [key: string]: Track } = tracksJson;
-
 export class DataModel {
-    artists: {[key: string]: Artist};
-    tracks: {[key: string]: Track};
-    allWeeks: Array<string>;
-    networkData: {[key: string]: Network };
+    artists: {[key: string]: Artist} = {};
+    tracks: {[key: string]: Track} = {};
+    allWeeks: Array<string> = [];
+    networkData: {[key: string]: Network } = {};
+    isLoaded: boolean = false;
 
-    constructor() {
-        // @ts-expect-error invalie JSON type but it still works
-        this.artists = artistsJson;
-        this.tracks = tracksObject;
-        // @ts-expect-error invalie JSON type but it still works
-        this.networkData = networkJson;
+    async loadData() {
+        try {
+            const [artistsResponse, tracksResponse, networkResponse] = await Promise.all([
+                fetch('/data/artists_v3.json'),
+                fetch('/data/tracks_v2.json'),
+                fetch('/data/network_v3.json')
+            ]);
 
-        this.allWeeks = Array.from(
-            new Set(Object.values(this.tracks).flatMap((track) => track.chartings.map((charting) => charting.week)))
-        ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+            this.artists = await artistsResponse.json();
+            const tracksObject = await tracksResponse.json();
+            this.networkData = await networkResponse.json();
 
-        // hotfix to add artist_id field and adjust stats data
-        Object.keys(this.artists).forEach((id) => {
-            this.artists[id].artist_id = id;
-            this.artists[id].stats.overall.weeks_on_chart = this.artists[id].stats.weeks_on_chart;
-        });
-        // hotfix to add track_id field
-        Object.keys(this.tracks).forEach((id) => {
-            this.tracks[id].track_id = id;
-        });
+            this.tracks = tracksObject;
+
+            this.allWeeks = Array.from(
+              new Set(Object.values(this.tracks).flatMap((track) => track.chartings.map((charting) => charting.week)))
+            ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+            // hotfix to add artist_id field and adjust stats data
+            Object.keys(this.artists).forEach((id) => {
+                this.artists[id].artist_id = id;
+                this.artists[id].stats.overall.weeks_on_chart = this.artists[id].stats.weeks_on_chart;
+            });
+
+            // hotfix to add track_id field
+            Object.keys(this.tracks).forEach((id) => {
+                this.tracks[id].track_id = id;
+            });
+
+            this.isLoaded = true;
+            return true;
+        } catch (error) {
+            console.error("Failed to load data:", error);
+            return false;
+        }
     }
 
     getArtists() {
