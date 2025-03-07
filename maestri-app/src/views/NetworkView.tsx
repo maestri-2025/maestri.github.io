@@ -12,6 +12,8 @@ import { Chip } from 'primereact/chip';
 import { Tooltip } from 'primereact/tooltip';
 import { getColorPalette } from '../utils/colorUtilities';
 
+
+
 function Network(props: { readonly model: DataModel }) {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -66,36 +68,37 @@ function Network(props: { readonly model: DataModel }) {
     return (
         <div className='flex'>
             <div>
-                <br/>
-                <Dropdown value={null}  onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }}/>
+                <br />
+                <Dropdown value={null} onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }} />
                 <h1>{artist.name}</h1>
-                <Button onClick={() => navigate('/comparison?ids=' + artist.artist_id)} label={"Compare artists"} icon="pi pi-user" rounded outlined/>
-                <Button onClick={() => navigate('/artist?id=' + artist.artist_id)} label={"View"} icon="pi pi-star" rounded outlined/>
-                <br/>
-                <br/>
+                <Button onClick={() => navigate('/comparison?ids=' + artist.artist_id)} label={"Compare artists"} icon="pi pi-user" rounded outlined />
+                <Button onClick={() => navigate('/artist?id=' + artist.artist_id)} label={"View"} icon="pi pi-star" rounded outlined />
+                <br />
+                <br />
                 <div className='width-100'>*Node size is determined by overall number of credits</div>
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <div className='width-100'>*Distance from center node and edge thickness are determined by contributions to {artist.name}</div>
                 <div>
                     <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
                 </div>
             </div>
             <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
+
         </div>
     );
 
     function setNewArtist(e: DropdownChangeEvent) {
         // update search params
-        const newQueryParameters : URLSearchParams = new URLSearchParams();
-        newQueryParameters.set("id",  e.value.artist_id)
+        const newQueryParameters: URLSearchParams = new URLSearchParams();
+        newQueryParameters.set("id", e.value.artist_id)
         setSearchParams(newQueryParameters);
         setArtist(props.model.getArtist(e.value.artist_id))
     }
 
     function clickedNode(node: ComputedNode<NetworkNode>) {
         // update search params
-        const newQueryParameters : URLSearchParams = new URLSearchParams();
+        const newQueryParameters: URLSearchParams = new URLSearchParams();
         newQueryParameters.set("id", node.id)
         setSearchParams(newQueryParameters);
         setArtist(props.model.getArtist(node.id))
