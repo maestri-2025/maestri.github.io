@@ -80,7 +80,7 @@ export interface Chart {
 }
 
 export interface Credit {
-    "artist_id": number,
+    "artist_id": string,
     "contribution_type": string,
 }
 

@@ -123,7 +123,7 @@ function Artist(props: ArtistProps) {
                     </div>
                     <div className='col-span-2'>
                         <div style={{height: '50vh'}}>
-                            <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}> All songs </h2>
+                            <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}>All songs</h2>
                             <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "100%"}}>
                                 { props.model.getTracksForArtist(currentArtist.artist_id).map(trackDisplay) }
                             </div>
@@ -132,25 +132,15 @@ function Artist(props: ArtistProps) {
                 </div>
             </div>
             <div>
-                <h1>Chartings</h1>
+                <h1>Charting</h1>
                 <div className='grid grid-cols-5'>
                     <div className='col-span-2'>
-                        <div style={{height: '40vh'}}>
-                            <h2 style={{ color: getColorPalette().amber, margin: '10px' }}>Globally charting {props.model.allWeeks[currentIndex]} <br></br>Total track(s): {chartingTracks.length}</h2>
-                            <div style={{ overflowY: 'scroll', paddingRight: '10px', maxHeight: '30vh'}}>
+                        <div style={{height: '50vh'}}>
+                            <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}>Globally charting {props.model.allWeeks[currentIndex]} <br></br>Total track(s): {chartingTracks.length}</h2>
+                            <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "100%"}}>
                                 {chartingTracks.length === 0 ? (
                                   <p>No charting tracks for this week.</p>
                                 ) : (
-                                  // chartingTracks.map((track) => (
-                                  //     <div key={track.track_id} className='flex items-center justify-between' style={{margin: '10px'}}>
-                                  //         <img src={track.image_url} height={50}></img>
-                                  //         <strong style={{ color: getColorPalette().amber }}>{track.name}</strong>
-                                  //         <div>
-                                  //             <div>{track.primary_artist_name}</div>
-                                  //             <div>Contribution: </div>
-                                  //         </div>
-                                  //     </div>
-                                  // ))
                                   chartingTracks.map(trackDisplay)
                                 )}
                             </div>
@@ -193,41 +183,38 @@ function Artist(props: ArtistProps) {
 
     function trackDisplay(track: Track) {
         const contributions = currentArtist.contributions.filter((cont) => cont.song_id.toString() === track.track_id);
-        const isPrimary = contributions.find((cont) => cont.type === 'primary')
 
-        function artistInfo () {
-            if (isPrimary) {
-                // return (
-                //     <div>
-                //         { contributions.map((cont) => {
-                //             return (<div>{cont.type}</div>)
-                //         })}
-                //     </div>
-                // )
-            } else {
-                return (
-                    <div className='flex'>
-                        <p>{track.primary_artist_name}</p>
-                        <Button style={{width: '2rem'}} onClick={() => navigate('/artist?id=' + track.primary_artist_id)} icon="pi pi-user" outlined tooltip="View Artist"/>
-                    </div>
-                )
-            }
-        }
+        const primaryArtists = track.credits
+          .filter(c => c.contribution_type === "primary")
+          .map(c => {
+              return <>
+                  <a className="artist-name-link" onClick={() => navigate('/artist?id=' + c.artist_id)}> {props.model.getArtist(c.artist_id).name}</a>
+              </>
+          } )
+          .reduce((acc, i) => {
+              return <>
+                  {acc}
+                  {" & "}
+                  {i}
+                  </>
+          })
 
         return (
-            <div key={track.track_id} className='flex items-center'>
-                <img src={track.image_url} height={50}></img>
-                <div style={{margin: '3px'}}>
-                    <strong style={{ color: getColorPalette().amber }}>{track.name}</strong>
-                    <div className='flex'>
+            <div key={track.track_id} className='flex items-center flex-row' style={{gap: '0.875rem'}}>
+                <div style={{height: "4.5rem", width: "4.5rem"}}>
+                    <img src={track.image_url} style={{height: "100%", width: "100%", objectFit: "cover", borderRadius: "5%"}}></img>
+                </div>
+                <div className="flex flex-col" style={{gap: '0.25rem'}}>
+                    <span style={{ color: getColorPalette().amber, fontWeight: 800 }}>{track.name}</span>
+                    <span style={{ fontSize: "80%"}}>{primaryArtists}</span>
+                    <span className='flex' style={{gap: "0.375rem"}}>
                         { contributions.map((cont) => {
                             return (
                               <span style={{backgroundColor: "#424b57", borderRadius: "20px", padding: "0.25rem 0.5rem", fontSize: "80%"}}>{cont.type}</span>
                             )
                         })}
-                    </div>
+                    </span>
                 </div>
-                { artistInfo() }
             </div>
         )
     }

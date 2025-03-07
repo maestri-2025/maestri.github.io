@@ -56,5 +56,8 @@
     padding: 0.5rem 0rem;
 }
 
-
+.artist-name-link:hover {
+  cursor: pointer;
+  text-decoration: underline #fbbf23;
+}
 
