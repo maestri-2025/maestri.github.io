@@ -43,7 +43,7 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
     ]
     const [xAxis, setXAxis] = useState(axisOptions[0]);
     const [yAxis, setYAxis] = useState(axisOptions[1]);
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<{ id: string; data: { x: number; y: number; }[]; }[]>([]);
 
     function buildData() {
       return props.currentTracks.map(track => (
@@ -65,8 +65,7 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
         setData(data)
         // console.log(buildData())
         // console.log(data)
-    }, [xAxis, yAxis, props.country])
-
+    }, [xAxis, yAxis, props.country]);
 
 
     return (
@@ -85,7 +84,6 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
               colors={"#fbbf23"}
               useMesh={false}
               axisBottom={{
-                orient: 'bottom',
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,
@@ -95,7 +93,6 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
                 truncateTickAt: 0
               }}
               axisLeft={{
-                orient: 'left',
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,

@@ -11,7 +11,7 @@ import SingleArtistCard from '../components/SingleArtistCard';
 import { Button } from 'primereact/button';
 import HeatMapBar from '../components/HeatMapBar';
 import ScatterPlot from '../components/ScatterPlot';
-import {countryCodeMapping, countryMappings} from "../utils/mapUtilities.ts";
+import { countryMappings } from "../utils/mapUtilities.ts";
 
 
 interface ArtistProps {
