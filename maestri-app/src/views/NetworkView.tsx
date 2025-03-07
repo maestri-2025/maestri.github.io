@@ -23,50 +23,50 @@ function Network(props: { readonly model: DataModel }) {
     const [artist, setArtist] = useState(props.model.getArtist(selectedArtistId));
     const history = (searchParams.get("history") == "" ? undefined : searchParams.get("history"))?.split(",") || [];
 
-    const artistItemTemplate = (node: NetworkNode) => {
-        const collaborator = props.model.getArtist(node.id)
-        const collaboratorImageLink = collaborator.image_url
+  const artistItemTemplate = (node: NetworkNode) => {
+    const collaborator = props.model.getArtist(node.id)
+    const collaboratorImageLink = collaborator.image_url
 
-        const collaborationsIds = props.model.getCollaborations(artist, collaborator)
-        const collaborationsIdSet = new Set(collaborationsIds)
-        const collaborations = props.model.getSpecificTracks(collaborationsIds)
-        const contributionTypesCounts = Array.from(collaborator.contributions.filter((c) => collaborationsIdSet.has(String(c.song_id))).map((c) => c.type).reduce((acc, e) => (acc.set(e, 1 + (acc.get(e) || 0))), new Map<string, number>).entries())
+    const collaborationsIds = props.model.getCollaborations(artist, collaborator)
+    const collaborationsIdSet = new Set(collaborationsIds)
+    const collaborations = props.model.getSpecificTracks(collaborationsIds)
+    const contributionTypesCounts = Array.from(collaborator.contributions.filter((c) => collaborationsIdSet.has(String(c.song_id))).map((c) => c.type).reduce((acc, e) => (acc.set(e, 1 + (acc.get(e) || 0))), new Map<string, number>).entries())
 
-        return (
-            <Panel header={
-                <div>
-                        <img style={{
-                    <div className="flex flex-row" style={{ fontSize: "150%", marginBottom: 2 }}>{collaborator.name}</div>
-                    <div className="flex flex-row">
-                            width: 75,
-                            height: 75,
+    return (
+      <Panel header={
+        <div>
+          <div className="flex flex-row" style={{ fontSize: "150%", marginBottom: 2 }}>{collaborator.name}</div>
+          <div className="flex flex-row">
+            <img style={{
+              width: 75,
+              height: 75,
+            }} src={collaboratorImageLink} alt={collaborator.name} />
+            <div>
+              {
+                contributionTypesCounts.map(([type, count]: [string, number]) => {
+                  return <Chip className={`chip-${type}-${collaborator.artist_id}`} style={{ fontSize: "70%", margin: 1 }} label={`${type}: ${count}`} />
+                })
+              }
+              {
+                contributionTypesCounts.map(([type, _]: [string, number]) => {
+                  return <Tooltip target={`.chip-${type}-${collaborator.artist_id}`} content={`How many ${type} credits ${collaborator.name} has on songs that ${artist.name} has contributed to`} />
+                })
+              }
+            </div>
+          </div>
+        </div>
+      } toggleable collapsed={true} >
+        <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "30vh" }}>
+          {collaborations.map((c) => trackDisplay(c, collaborator))}
+        </div>
+      </Panel>
 
-                        }} src={collaboratorImageLink} alt={collaborator.name} />
-                        <div>
-                            {
-                                    return <Chip className={`chip-${type}-${collaborator.artist_id}`} style={{ fontSize: "70%", margin: 1 }} label={`${type}: ${count}`} />
-                                contributionTypesCounts.map(([type, count]: [string, number]) => {
-                            }
-                                })
-                            {
-                                    return <Tooltip target={`.chip-${type}-${collaborator.artist_id}`} content={`How many ${type} credits ${collaborator.name} has on songs that ${artist.name} has contributed to`} />
-                                contributionTypesCounts.map(([type, _]: [string, number]) => {
-                                })
-                            }
-                        </div>
-                    </div>
-                </div>
-            } toggleable collapsed={true} >
-                <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "30vh" }}>
-                    {collaborations.map((c) => trackDisplay(c, collaborator))}
-                </div>
-            </Panel>
+    )
+  }
 
-        )
-    }
-    const collaborators = props.model.networkData[artist.artist_id]["nodes"].filter((n) => n.id != artist.artist_id).sort((a, b) => -(a.num_collaborations - b.num_collaborations))
+  const collaborators = props.model.networkData[artist.artist_id]["nodes"].filter((n) => n.id != artist.artist_id).sort((a, b) => -(a.num_collaborations - b.num_collaborations))
 
-    const history = searchParams.get("history")?.split(",") || [];
+
     return (
       <div className='grid grid-cols-9'>
         <div className='flex flex-col col-span-6' style={{gap: '1rem', padding: '1rem'}}>
@@ -81,13 +81,9 @@ function Network(props: { readonly model: DataModel }) {
           <br/>
           <Dropdown value={null}  onChange={setNewArtist} options={allArtists.filter((art) => art.artist_id !== artist.artist_id)} optionLabel="name" placeholder="Select an Artist" filter virtualScrollerOptions={{ itemSize: 38 }}/>
           <h1>{artist.name}</h1>
-          <div className='width-100'>*Node size is determined by overall number of credits</div>
-          <br/>
-          <br/>
-          <div className='width-100'>*Distance from center node and edge thickness are determined by contributions to {artist.name}</div>
+          <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
         </div>
       </div>
-        <DataScroller value={collaborators} itemTemplate={artistItemTemplate} rows={5} lazy={true} inline scrollHeight="500px" header="Collaborators" />
     );
 
     function getArtistHistoryCards() {
