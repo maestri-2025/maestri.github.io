@@ -21,19 +21,19 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
             computation: (track: Track) => track.credits.length
         },
         {
-            label: "Number of Charting Countries",
+            label: "Charting Countries",
             computation: (track: Track) => (new Set(track.chartings.map((chart) => chart.country))).size
         },
         {
             label: "Peak Rank",
             computation: (track: Track, country: CountryDetails) => {
-              return Math.max(...track.chartings
+              return Math.min(...track.chartings
                 .filter(chart => props.country.spotifyCode !== null ? chart.country === country.spotifyCode : true)
                 .map(chart => chart.rank))
             }
         },
         {
-            label: "Number of charting weeks",
+            label: "Weeks on Chart",
             computation: (track: Track, country: CountryDetails) => {
               return Math.max(...track.chartings
                 .filter(chart => props.country.spotifyCode !== null ? chart.country === country.spotifyCode : true)
