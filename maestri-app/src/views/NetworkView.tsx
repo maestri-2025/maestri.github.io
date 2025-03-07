@@ -4,8 +4,13 @@ import { DataModel } from '../DataModel';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
-import { NetworkNode } from '../utils/interfaces';
+import { Artist, NetworkNode, Track } from '../utils/interfaces';
 import NetworkChart from '../components/NetworkChart';
+import { DataScroller } from 'primereact/datascroller';
+import { Panel } from 'primereact/panel';
+import { Chip } from 'primereact/chip';
+import { Tooltip } from 'primereact/tooltip';
+import { getColorPalette } from '../utils/colorUtilities';
 
 function Network(props: { readonly model: DataModel }) {
     const [searchParams, setSearchParams] = useSearchParams();
