@@ -250,4 +250,19 @@ export class DataModel {
 
         return result;
     }
+
+    getCollaborations(artistA: Artist, artistB: Artist) {
+        /**
+         * Returns the track ids of tracks where both artists have a credit
+         */
+        const tracksA: Set<number> = new Set(artistA.contributions.map((c) => { return c.song_id }))
+        const tracksB: Set<number> = new Set(artistB.contributions.map((c) => { return c.song_id }))
+        const collaborations: Array<number> = []
+        tracksA.forEach((s) => {
+            if (tracksB.has(s)) {
+                collaborations.push(s)
+            }
+        })
+        return collaborations.map(String)
+    }
 }

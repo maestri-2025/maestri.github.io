@@ -56,5 +56,7 @@
     padding: 0.5rem 0rem;
 }
 
-
+#networkGraph > div > div > svg {
+  zoom: 2;
+}
 
