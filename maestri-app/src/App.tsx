@@ -15,8 +15,8 @@ import { DataModel } from './DataModel';
 function App(props: { readonly model: DataModel }) {
     return (
         <div>
-        <Navbar/>
         <BrowserRouter>
+            <Navbar/>
             <Routes>
                 <Route path="/" element={<Home/>}></Route>
                 <Route path="/artist" element={<Artist model={props.model}/>}></Route>

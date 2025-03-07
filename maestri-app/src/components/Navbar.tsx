@@ -1,7 +1,9 @@
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const navigate = useNavigate();
 
   const start = (
       <a href="/">
@@ -13,25 +15,19 @@ function Navbar() {
     {
       label: 'Artist',
       icon: 'pi pi-user',
-      url: '/artist?id=123'
+      command: () =>  navigate('/artist?id=1405')
     },
     {
       label: 'Compare artists',
       icon: 'pi pi-users',
-      url: '/comparison'
+      command: () =>  navigate('/comparison')
     },
     {
       label: 'Explore connections',
       icon: 'pi pi-arrow-right-arrow-left',  
-      url: '/network'
-    },
-    // {
-    //   label: 'Explore the world',
-    //   icon: 'pi pi-map',
-    //   url: '/mapview'
-    // }
+      command: () =>  navigate('/network?id=1405')
+    }
   ]
-
 
   // Return
   return (
