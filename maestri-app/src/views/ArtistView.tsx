@@ -154,7 +154,14 @@ function Artist(props: ArtistProps) {
                         <div className='flex items-center'>
                             { timelineButton() }
                             <div style={{ marginLeft: '20px', width: '100%'}}>
-                                <HeatMapBar artist={currentArtist} model={props.model}></HeatMapBar>
+                                <HeatMapBar artist={currentArtist}
+                                            model={props.model}
+                                            setSliderPosition={newDate => {
+                                                const weekIdx = props.model.allWeeks.indexOf(newDate)
+                                                setCurrentIndex(weekIdx);
+                                                setMapData(allMapData[weekIdx])
+                                            }}
+                                ></HeatMapBar>
                                 <div style={{margin: '0px 5px'}}>
                                     <Slider
                                       value={currentIndex}

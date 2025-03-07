@@ -4,7 +4,7 @@ import { Artist } from '../utils/interfaces';
 import { DataModel } from '../DataModel';
 import HeatMapTooltip from './HeatMapTooltip';
 
-function HeatMapBar(props: {artist: Artist, model: DataModel}) {
+function HeatMapBar(props: {artist: Artist, model: DataModel, setSliderPosition: (newDate: string) => void}) {
 
     const data = [];
     const result: {[key: string] : string | Array<{[key: string] : string | number | null}>} = { "id": props.artist.name };
@@ -44,6 +44,7 @@ function HeatMapBar(props: {artist: Artist, model: DataModel}) {
         label={''}
         borderColor={{ from: 'color'}}
         tooltip={HeatMapTooltip}
+        onClick={(e) => props.setSliderPosition(e.data.x as string)}
     />
     </div>)
 }
