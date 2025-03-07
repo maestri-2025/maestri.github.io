@@ -153,53 +153,55 @@ function Artist(props: ArtistProps) {
             </div>
             <div>
                 <h1>Charting</h1>
-                <div className='grid grid-cols-5'>
-                    <div className='col-span-2'>
-                        <div style={{height: '50vh'}}>
-                            <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}>Globally charting {props.model.allWeeks[currentIndex]} <br></br>Total track(s): {chartingTracks.length}</h2>
-                            <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "100%"}}>
-                                {chartingTracks.length === 0 ? (
-                                  <p>No charting tracks for this week.</p>
-                                ) : (
-                                  chartingTracks.map(trackDisplay)
-                                )}
+                <div className="flex flex-col" style={{gap: "3rem"}}>
+                    <div className='grid grid-cols-5' style={{gap: "2rem"}}>
+                        <div className='col-span-2'>
+                            <div style={{height: '55vh'}}>
+                                <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}>Globally charting {props.model.allWeeks[currentIndex]} <br></br>Total track(s): {chartingTracks.length}</h2>
+                                <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "100%"}}>
+                                    {chartingTracks.length === 0 ? (
+                                      <p>No charting tracks for this week.</p>
+                                    ) : (
+                                      chartingTracks.map(trackDisplay)
+                                    )}
+                                </div>
                             </div>
                         </div>
-                        <div className='flex flex-row'>
-                          <div style={{height: "40vh", width: "100vh"}}>
+                        <div className='col-span-3'>
+                            <div className='clipped'>
+                                <ChoroplethChart mapData={mapData} />
+                            </div>
+                            <h3 style={{ color: getColorPalette().amber, margin: '10px' }}>{props.model.allWeeks[currentIndex]}</h3>
+                            <div className='flex items-center'>
+                                { timelineButton() }
+                                <div style={{ marginLeft: '20px', width: '100%'}}>
+                                    <HeatMapBar artist={currentArtist}
+                                                model={props.model}
+                                                setSliderPosition={newDate => {
+                                                    const weekIdx = props.model.allWeeks.indexOf(newDate)
+                                                    setCurrentIndex(weekIdx);
+                                                    setMapData(allMapData[weekIdx])
+                                                }}
+                                    ></HeatMapBar>
+                                    <div style={{margin: '0px 5px'}}>
+                                        <Slider
+                                          value={currentIndex}
+                                          min={0}
+                                          max={props.model.allWeeks.length - 1}
+                                          onChange={handleSliderChange}
+                                          //onSlideEnd={handleSliderEnd}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='flex flex-row'>
+                        <div style={{height: "40vh", width: "100vh"}}>
                             <BumpChart data={props.model.getBumpData(currentArtist, "US", currentIndex)}/>
-                          </div>
-                          <div>
-                            Scatter plot here
-                          </div>
                         </div>
-                    </div>
-                </div>
-                <div className='col-span-3'>
-                    <div className='clipped'>
-                        <ChoroplethChart mapData={mapData} />
-                    </div>
-                    <h3 style={{ color: getColorPalette().amber, margin: '10px' }}>{props.model.allWeeks[currentIndex]}</h3>
-                    <div className='flex items-center'>
-                        { timelineButton() }
-                        <div style={{ marginLeft: '20px', width: '100%'}}>
-                            <HeatMapBar artist={currentArtist}
-                                        model={props.model}
-                                        setSliderPosition={newDate => {
-                                            const weekIdx = props.model.allWeeks.indexOf(newDate)
-                                            setCurrentIndex(weekIdx);
-                                            setMapData(allMapData[weekIdx])
-                                        }}
-                            ></HeatMapBar>
-                            <div style={{margin: '0px 5px'}}>
-                                <Slider
-                                  value={currentIndex}
-                                  min={0}
-                                  max={props.model.allWeeks.length - 1}
-                                  onChange={handleSliderChange}
-                                  //onSlideEnd={handleSliderEnd}
-                                />
-                            </div>
+                        <div>
+                            Scatter plot here
                         </div>
                     </div>
                 </div>
