@@ -39,10 +39,14 @@ function NetworkChart(props: NetworkChartProps) {
         }
     }, [artistNetwork]);
 
+
     return (
         <div ref={scrollRef} id={"networkGraph"} style={{height: "768px", width: "100%", overflowX: "scroll", overflowY:"scroll"}}>
             <ResponsiveNetwork
                 data={artistNetwork}
+                // @ts-expect-error
+                height={576}
+                width={576}
                 margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
                 linkDistance={l=> getEdgeDistance(l.source, l.target)}
                 centeringStrength={0.1}
