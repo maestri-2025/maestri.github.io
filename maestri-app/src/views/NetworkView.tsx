@@ -1,5 +1,5 @@
 import { ComputedNode } from '@nivo/network'
-import {useEffect, useRef, useState} from "react";
+import {useState} from "react";
 import { DataModel } from '../DataModel';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from 'primereact/button';
