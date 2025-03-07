@@ -240,7 +240,7 @@ function Network(props: { readonly model: DataModel }) {
       <div className='grid grid-cols-9'>
         <div className='flex flex-col col-span-6' style={{gap: '1rem', padding: '1rem'}}>
           <br/>
-          <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem', padding: "0.25rem 0", borderRadius: '5px', borderLeft: "1px solid #424b57", borderRight: "1px solid #424b57"}}>
+          <div className="flex flex-row" style={{overflowX: 'scroll', gap: '0.75rem', padding: "0.25rem 0.5rem", borderRadius: '5px', borderLeft: "1px solid #424b57", borderRight: "1px solid #424b57"}}>
             { getArtistHistoryCards() }
           </div>
           <NetworkChart model={props.model} artist={artist} clickedNode={clickedNode}></NetworkChart>
