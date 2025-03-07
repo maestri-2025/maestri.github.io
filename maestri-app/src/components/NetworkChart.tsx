@@ -2,6 +2,8 @@ import { ComputedNode, InputNode, ResponsiveNetwork } from "@nivo/network"
 import NetWorkNodeComponent from "./NetworkNodeComponent";
 import { Artist, NetworkNode } from "../utils/interfaces";
 import { DataModel } from "../DataModel";
+import {colorPalette} from "../utils/colorUtilities.ts";
+import {useEffect, useRef} from "react";
 
 interface NetworkChartProps {
     readonly model: DataModel;
@@ -16,34 +18,54 @@ function NetworkChart(props: NetworkChartProps) {
         return (prev && prev.total_contributions > current.total_contributions) ? prev : current
     })
     const maxContributions = biggestGlobalContributor.total_contributions
+    // console.log("maxContributions", maxContributions)
 
     const biggestLocalCollaborator = artistNetwork["nodes"].reduce((prev, current) => {
         return (prev && prev.num_collaborations > current.num_collaborations) ? prev : current
     })
     const maxLocalCollaborations = biggestLocalCollaborator.num_collaborations;
+    // console.log("maxLocalCollaborations", maxLocalCollaborations)
+
+    const numNodes = artistNetwork["nodes"].length;
+    console.log("numNodes", numNodes)
+
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            const { scrollWidth, scrollHeight, clientWidth, clientHeight } = scrollRef.current;
+            scrollRef.current.scrollLeft = (scrollWidth - clientWidth) / 2;
+            scrollRef.current.scrollTop = (scrollHeight - clientHeight) / 2;
+        }
+    }, [artistNetwork]);
+
 
     return (
-        <div style={{height: "540px", width: "540px", scale: "2", marginTop: "270px", marginLeft: "270px"}}>
+        <div ref={scrollRef} id={"networkGraph"} style={{height: "768px", width: "100%", overflowX: "scroll", overflowY:"scroll"}}>
             <ResponsiveNetwork
                 data={artistNetwork}
+                // @ts-expect-error
+                height={576}
+                width={576}
                 margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-                linkDistance={l=>(getEdgeDistance(l.source, l.target))}
+                linkDistance={l=> getEdgeDistance(l.source, l.target)}
                 centeringStrength={0.1}
                 repulsivity={20}
-                nodeSize={n=>getNodeSize(n, maxContributions)}
-                activeNodeSize={n=>1.5*getNodeSize(n, maxContributions)}
-                nodeColor={"rgb(97, 205, 187)"}
+                nodeSize={n=> getNodeSize(n, maxContributions)}
+                activeNodeSize={40}
+                nodeColor={colorPalette.amber}
                 nodeBorderWidth={1}
                 nodeBorderColor={{
                     from: 'color',
                     modifiers: [
                         [
                             'darker',
-                            0.8
+                            0.7
                         ]
                     ]
                 }}
-                linkThickness={n=>getEdgeSize(n.target.data)}
+                linkThickness={2}
+                linkColor={"#374151"}
                 motionConfig="slow"
                 onClick={props.clickedNode}
                 nodeComponent={n=>NetWorkNodeComponent(n, props.model)}
@@ -69,30 +91,20 @@ function NetworkChart(props: NetworkChartProps) {
         const contributions = props.model.networkData[node.id].total_contributions;
         const normalized_contributions = (contributions) / max_contributions;
         const max_size = 64;
-        const min_size = 12
+        const min_size = 14
         return Math.floor(normalized_contributions*(max_size-min_size) + min_size);
-    }
-
-    function getEdgeSize(node: NetworkNode){
-        // Normalize
-        const collaborations = node.num_collaborations;
-        const normalized_collaborations = (collaborations) / maxLocalCollaborations;
-        const max_size = 8;
-        const min_size = 1;
-        return Math.floor(normalized_collaborations*(max_size-min_size) + min_size);
     }
 
     function getEdgeDistance(mainAristId: string, collaboratorId: string){
         const nodes: Array<NetworkNode> = props.model.networkData[mainAristId]["nodes"]
       
         const collaborations = nodes.find(n=>(n.id == collaboratorId))?.num_collaborations
-        if (collaborations) {
-            const normalized_collaborations = 1 - ((collaborations) / maxLocalCollaborations); // Inverse relationship. More collaborations = closer to each other
-            const max_size = 100;
-            const min_size = 45;
-            return Math.floor(normalized_collaborations*(max_size-min_size) + min_size);
-        }
-        return 100; // return max distance, should never reach here
+        if (!collaborations) return 100;
+
+        const normalized_collaborations = 1 - ((collaborations) / maxLocalCollaborations); // Inverse relationship. More collaborations = closer to each other
+        const max_size = 100;
+        const min_size = 30;
+        return Math.floor(normalized_collaborations*(max_size-min_size) + min_size);
     }
 }
 

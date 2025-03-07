@@ -5,6 +5,7 @@ import { getColorPalette } from '../utils/colorUtilities';
 import { DataModel } from '../DataModel';
 import { Track } from '../utils/interfaces';
 import ChoroplethChart from '../components/ChloroplethChart';
+import BumpChart from '../components/BumpChart';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import SingleArtistCard from '../components/SingleArtistCard';
 import { Button } from 'primereact/button';
@@ -28,13 +29,13 @@ function Artist(props: ArtistProps) {
     const [chartingTracks, setChartingTracks] = useState<Track[]>([]);
 
     const [selectedCountry, setSelectedCountry] = useState(countryMappings[0]);
-    
+
     // update current artist when id changes
     useEffect(() => {
         setCurrentArtist(props.model.getArtist(searchParams.get("id") || '45'))
     }, [searchParams]);
 
-    // compute all map data for each week when artistName changes 
+    // compute all map data for each week when artistName changes
     const allMapData = useMemo(() => {
         return props.model.allWeeks.map((week) => props.model.generateMapDataForWeek(week, currentArtist.artist_id));
     }, [currentArtist]);
@@ -164,38 +165,45 @@ function Artist(props: ArtistProps) {
                                 )}
                             </div>
                         </div>
-                    </div>
-                    <div className='col-span-3'>
-                        <div className='clipped'>
-                            <ChoroplethChart mapData={mapData} />
+                        <div className='flex flex-row'>
+                          <div style={{height: "40vh", width: "100vh"}}>
+                            <BumpChart data={props.model.getBumpData(currentArtist, "US", currentIndex)}/>
+                          </div>
+                          <div>
+                            Scatter plot here
+                          </div>
                         </div>
-                        <h3 style={{ color: getColorPalette().amber, margin: '10px' }}>{props.model.allWeeks[currentIndex]}</h3>
-                        <div className='flex items-center'>
-                            { timelineButton() }
-                            <div style={{ marginLeft: '20px', width: '100%'}}>
-                                <HeatMapBar artist={currentArtist}
-                                            model={props.model}
-                                            setSliderPosition={newDate => {
-                                                const weekIdx = props.model.allWeeks.indexOf(newDate)
-                                                setCurrentIndex(weekIdx);
-                                                setMapData(allMapData[weekIdx])
-                                            }}
-                                ></HeatMapBar>
-                                <div style={{margin: '0px 5px'}}>
-                                    <Slider
-                                      value={currentIndex}
-                                      min={0}
-                                      max={props.model.allWeeks.length - 1}
-                                      onChange={handleSliderChange}
-                                      //onSlideEnd={handleSliderEnd}
-                                    />
-                                </div>
+                    </div>
+                </div>
+                <div className='col-span-3'>
+                    <div className='clipped'>
+                        <ChoroplethChart mapData={mapData} />
+                    </div>
+                    <h3 style={{ color: getColorPalette().amber, margin: '10px' }}>{props.model.allWeeks[currentIndex]}</h3>
+                    <div className='flex items-center'>
+                        { timelineButton() }
+                        <div style={{ marginLeft: '20px', width: '100%'}}>
+                            <HeatMapBar artist={currentArtist}
+                                        model={props.model}
+                                        setSliderPosition={newDate => {
+                                            const weekIdx = props.model.allWeeks.indexOf(newDate)
+                                            setCurrentIndex(weekIdx);
+                                            setMapData(allMapData[weekIdx])
+                                        }}
+                            ></HeatMapBar>
+                            <div style={{margin: '0px 5px'}}>
+                                <Slider
+                                  value={currentIndex}
+                                  min={0}
+                                  max={props.model.allWeeks.length - 1}
+                                  onChange={handleSliderChange}
+                                  //onSlideEnd={handleSliderEnd}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     );
 

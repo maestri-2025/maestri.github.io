@@ -1,41 +1,50 @@
 import { Artist, Network, Track } from "./utils/interfaces";
-import artistsJson from "../../data/artists_v3.json";
-import tracksJson from "../../data/tracks_v2.json";
-import networkJson from '../../data/network_v3.json'
 import { countryCodeMapping } from "./utils/mapUtilities";
 import { nivoDarkColorPalette } from "./utils/colorUtilities";
 import { getBarKeyLabelsFromType } from "./utils/dataUtilities";
 
-
-// hotfix (am i using this word correctly) to convert array to an object with track_id as keys which makes the map work again
-const tracksObject = tracksJson as { [key: string]: Track }; // Type declaration for tracksObject
-  
 export class DataModel {
-    artists: {[key: string]: Artist};
-    tracks: {[key: string]: Track};
-    allWeeks: Array<string>;
-    networkData: {[key: string]: Network };
+    artists: {[key: string]: Artist} = {};
+    tracks: {[key: string]: Track} = {};
+    allWeeks: Array<string> = [];
+    networkData: {[key: string]: Network } = {};
+    isLoaded: boolean = false;
 
-    constructor() {
-        // @ts-expect-error invalie JSON type but it still works
-        this.artists = artistsJson;
-        this.tracks = tracksObject;
-        // @ts-expect-error invalie JSON type but it still works
-        this.networkData = networkJson;
+    async loadData() {
+        try {
+            const [artistsResponse, tracksResponse, networkResponse] = await Promise.all([
+                fetch('/data/artists_v3.json'),
+                fetch('/data/tracks_v2.json'),
+                fetch('/data/network_v3.json')
+            ]);
 
-        this.allWeeks = Array.from(
-            new Set(Object.values(this.tracks).flatMap((track) => track.chartings.map((charting) => charting.week)))
-        ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+            this.artists = await artistsResponse.json();
+            const tracksObject = await tracksResponse.json();
+            this.networkData = await networkResponse.json();
 
-        // hotfix to add artist_id field and adjust stats data
-        Object.keys(this.artists).forEach((id) => {
-            this.artists[id].artist_id = id;
-            this.artists[id].stats.overall.weeks_on_chart = this.artists[id].stats.weeks_on_chart;
-        });
-        // hotfix to add track_id field
-        Object.keys(this.tracks).forEach((id) => {
-            this.tracks[id].track_id = id;
-        });
+            this.tracks = tracksObject;
+
+            this.allWeeks = Array.from(
+              new Set(Object.values(this.tracks).flatMap((track) => track.chartings.map((charting) => charting.week)))
+            ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+            // hotfix to add artist_id field and adjust stats data
+            Object.keys(this.artists).forEach((id) => {
+                this.artists[id].artist_id = id;
+                this.artists[id].stats.overall.weeks_on_chart = this.artists[id].stats.weeks_on_chart;
+            });
+
+            // hotfix to add track_id field
+            Object.keys(this.tracks).forEach((id) => {
+                this.tracks[id].track_id = id;
+            });
+
+            this.isLoaded = true;
+            return true;
+        } catch (error) {
+            console.error("Failed to load data:", error);
+            return false;
+        }
     }
 
     getArtists() {
@@ -58,6 +67,10 @@ export class DataModel {
 
     getNetworkDataForArtist(artistId: string) {
         return this.networkData[artistId] || {};
+    }
+
+    getTrack(id: string) {
+        return this.tracks[id];
     }
 
     getSpecificTracks(ids: Array<string>): Array<Track> {
@@ -197,5 +210,72 @@ export class DataModel {
         radarData.push(result5);
 
         return radarData;
+    }
+
+    // This function is so ugly and can probably be made better and more efficient
+    getBumpData(artist: Artist, country: String, week: number) {
+        const start: Date = new Date("2023-01-05");        
+
+        const current = new Date(start);
+        current.setDate(start.getDate() + week * 7);
+
+        const fiveWeeksAgo = new Date(current);
+        fiveWeeksAgo.setDate(current.getDate() - 5 * 7);
+
+        const dates: Array<string> = [];
+        for (let d = new Date(fiveWeeksAgo); d <= current; d.setDate(d.getDate() + 7)) {
+            dates.push(new Date(d).toLocaleDateString("en-CA"));
+        }
+
+        const contributionIds = [...new Set(this.artists[artist.artist_id].contributions.map((cont) => { return cont.song_id.toString()}))];
+        const trackInfo = this.getSpecificTracks(contributionIds).map((track) => {
+            const filteredChartings = track.chartings.filter((charting) => {
+                const chartDay = new Date(charting.week);
+                return (
+                    charting.country === country &&
+                    chartDay >= fiveWeeksAgo &&
+                    chartDay <= current
+                );
+            });
+            return { ...track, chartings: filteredChartings };
+        });
+
+        const result: Array<{ id: string, data: Array<{ x: string; y: number | null }>}> = [];
+
+
+        trackInfo.forEach((track) => {
+            if (!Array.isArray(track.chartings) || !track.chartings.length) { return; }
+            const serie: Array<{ x: string, y: number | null }> = [];
+            const chartingMap = new Map(track.chartings.map(entry => [entry.week, entry.rank]));
+
+            // Iterate through the list of dates and push rank or null
+            dates.forEach((week) => {
+                serie.push({ x: week, y: chartingMap.get(week) ?? null });
+            });
+            result.push({
+                id: track.name.toString(),
+                data: serie
+            })
+        });
+
+        // console.log(dates);
+        // console.log(result)
+
+        return result;
+    }
+
+    getCollaborations(artistA: Artist, artistB: Artist) {
+        /**
+         * Returns the track ids of tracks where both artists have a credit
+         */
+        const tracksA: Set<number> = new Set(artistA.contributions.map((c) => { return c.song_id }))
+        const tracksB: Set<number> = new Set(artistB.contributions.map((c) => { return c.song_id }))
+        const collaborations: Array<number> = []
+        tracksA.forEach((s) => {
+            if (tracksB.has(s)) {
+                collaborations.push(s)
+            }
+        })
+        return collaborations.map(String)
     }
 }
