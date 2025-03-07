@@ -10,6 +10,7 @@ import SingleArtistCard from '../components/SingleArtistCard';
 import { Button } from 'primereact/button';
 import HeatMapBar from '../components/HeatMapBar';
 import ScatterPlot from '../components/ScatterPlot';
+import {countryCodeMapping, countryMappings} from "../utils/mapUtilities.ts";
 
 
 interface ArtistProps {
@@ -25,6 +26,8 @@ function Artist(props: ArtistProps) {
     const [currentArtist, setCurrentArtist] = useState(props.model.getArtist(searchParams.get("id") || '45'));
     const [mapData, setMapData] = useState(props.model.generateMapDataForWeek(props.model.allWeeks[0], currentArtist.artist_id));
     const [chartingTracks, setChartingTracks] = useState<Track[]>([]);
+
+    const [selectedCountry, setSelectedCountry] = useState(countryMappings[0]);
     
     // update current artist when id changes
     useEffect(() => {
@@ -117,15 +120,30 @@ function Artist(props: ArtistProps) {
                 <h1>Songs Stats</h1>
                 <div className='grid grid-cols-5' style={{gap: "1rem"}}>
                     <div className='col-span-3'>
+                        <Dropdown
+                          style={{ width: '50%'}}
+                          value={selectedCountry.label}
+                          onChange={(e) => setSelectedCountry(e.value)}
+                          options={countryMappings}
+                          optionLabel="label"
+                          placeholder={selectedCountry.label}
+                          checkmark={true}
+                          highlightOnSelect={false}
+                        />
                         <div style={{height: '50vh'}}>
-                            <ScatterPlot artist={currentArtist} currentTracks={chartingTracks} country='GLOBAL' currentWeek={props.model.allWeeks[currentIndex]}></ScatterPlot>
+                            <ScatterPlot artist={currentArtist} currentTracks={
+                                props.model.getTracksForArtist(currentArtist.artist_id)
+                                  .filter(track => selectedCountry.spotifyCode === null ? true : track.chartings.some(chart => chart.country === selectedCountry.spotifyCode) )
+                            } country={selectedCountry} currentWeek={props.model.allWeeks[currentIndex]}  ></ScatterPlot>
                         </div>
                     </div>
                     <div className='col-span-2'>
                         <div style={{height: '50vh'}}>
                             <h2 style={{ color: getColorPalette().amber, margin: "0 0 1rem 0" }}>All songs</h2>
                             <div className="flex flex-col" style={{ gap: "1rem", overflowY: 'scroll', height: "100%"}}>
-                                { props.model.getTracksForArtist(currentArtist.artist_id).map(trackDisplay) }
+                                { props.model.getTracksForArtist(currentArtist.artist_id)
+                                  .filter(track => selectedCountry.spotifyCode === null ? true : track.chartings.some(chart => chart.country === selectedCountry.spotifyCode) )
+                                  .map(trackDisplay) }
                             </div>
                         </div>
                     </div>

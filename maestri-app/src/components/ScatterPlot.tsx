@@ -5,12 +5,14 @@ import { getTheme } from '../utils/colorUtilities';
 import { Artist, Track } from '../utils/interfaces';
 import { Dropdown } from 'primereact/dropdown';
 import { useEffect, useState } from 'react';
+import {CountryDetails, countryMappings} from "../utils/mapUtilities.ts";
 
-function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, currentWeek: string, country: string}) {
+function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, currentWeek: string, country: CountryDetails}) {
 
     if (props.currentTracks.length === 0) {
         return null;
     }
+
     console.log(props)
     const axisOptions = [
         {
@@ -21,17 +23,21 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
             label: "total countries",
             computation: (track: Track) => (new Set(track.chartings.map((chart) => chart.country))).size
         },
-        // {
-        //     label: "release date",
-        //     computation: (track: Track) => track.release_date
-        // },
         {
-            label: "current rank",
-            computation: (track: Track) => track.chartings.find((chart) => chart.country === props.country && chart.week === props.currentWeek)?.rank || 0
+            label: "peak rank",
+            computation: (track: Track, country: CountryDetails) => {
+              return Math.max(...track.chartings
+                .filter(chart => props.country.spotifyCode !== null ? chart.country === country.spotifyCode : true)
+                .map(chart => chart.rank))
+            }
         },
         {
-            label: "number of weeks",
-            computation: (track: Track) => track.chartings.find((chart) => chart.country === props.country && chart.week === props.currentWeek)?.weeks_on_chart || 0
+            label: "peak number of weeks",
+            computation: (track: Track, country: CountryDetails) => {
+              return Math.max(...track.chartings
+                .filter(chart => props.country.spotifyCode !== null ? chart.country === country.spotifyCode : true)
+                .map(chart => chart.weeks_on_chart))
+            }
         }
     ]
     const [xAxis, setXAxis] = useState(axisOptions[0]);
@@ -39,13 +45,13 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
     const [data, setData] = useState([]);
 
     function buildData() {
-      return  props.currentTracks.map(track => (
+      return props.currentTracks.map(track => (
         {
           id: track.name,
           data: [
             {
-              "x": xAxis.computation(track),
-              "y": yAxis.computation(track)
+              "x": xAxis.computation(track, props.country),
+              "y": yAxis.computation(track, props.country),
             }
           ]
         }
@@ -54,10 +60,11 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
 
     useEffect(() => {
         const data = buildData()
+        console.log("running effect", props, "data", data)
         setData(data)
         // console.log(buildData())
-        console.log(data)
-    }, [xAxis, yAxis, props])
+        // console.log(data)
+    }, [xAxis, yAxis, props.country])
     
 
 
@@ -94,6 +101,8 @@ function ScatterPlot(props: {artist: Artist, currentTracks: Array<Track>, curren
                 axisTop={null}
                 axisRight={null}
                 theme={getTheme()}
+                colors={"#fbbf23"}
+                useMesh={false}
                 axisBottom={{
                     orient: 'bottom',
                     tickSize: 5,

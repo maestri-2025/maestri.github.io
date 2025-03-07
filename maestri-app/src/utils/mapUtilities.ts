@@ -44714,39 +44714,224 @@ const countryCodeMapping: Record<string, string> = {
     "DE": "DEU",  // germany
     "SE": "SWE",
     "ES": "ESP",
-    "AR":"ARG",
-    "AT":"AUT",
-    "BE":"BEL",
-    "BG":"BGR",
-    "CA":"CAN",
-    "CY":"CYP",
-    "CZ":"CZE",
-    "DK":"DNK",
-    "EE":"EST",
-    "FI":"FIN",
-    "FR":"FRA",
-    "GR":"GRC",
-    "HU":"HUN",
-    "IS":"ISL",
-    "IE":"IRL",
-    "LV":"LVA",
-    "LT":"LTU",
-    "LU":"LUX",
-    "MX":"MEX",
-    "NL":"NLD",
-    "NO":"NOR",
-    "PL":"POL",
-    "PT":"PRT",
-    "RO":"ROU",
-    "SK":"SVK",
-    "CH":"CHE",
-    "UA":"UKR",
-    "US":"USA",
-
+    "AR": "ARG",
+    "AT": "AUT",
+    "BE": "BEL",
+    "BG": "BGR",
+    "CA": "CAN",
+    "CY": "CYP",
+    "CZ": "CZE",
+    "DK": "DNK",
+    "EE": "EST",
+    "FI": "FIN",
+    "FR": "FRA",
+    "GR": "GRC",
+    "HU": "HUN",
+    "IS": "ISL",
+    "IE": "IRL",
+    "LV": "LVA",
+    "LT": "LTU",
+    "LU": "LUX",
+    "MX": "MEX",
+    "NL": "NLD",
+    "NO": "NOR",
+    "PL": "POL",
+    "PT": "PRT",
+    "RO": "ROU",
+    "SK": "SVK",
+    "CH": "CHE",
+    "UA": "UKR",
+    "US": "USA",
     // add more as needed
 };
 
 const getMapData = () => mapDataSets;
 
-export {getFeaturesArray, getMapData, countryCodeMapping}
+const countryMappings : CountryDetails[]= [
+  {
+    label: "CUMULATIVE",
+    spotifyCode: null,
+    mapCode: null,
+  },
+  {
+    label: "GLOBAL",
+    spotifyCode: "GLOBAL",
+    mapCode: null,
+  },
+  {
+    label: "ITA",
+    spotifyCode: "IT",
+    mapCode: "ITA",
+  },
+  {
+    label: "GBR",
+    spotifyCode: "GB",
+    mapCode: "GBR",
+  },
+  {
+    label: "DEU",
+    spotifyCode: "DE",
+    mapCode: "DEU",
+  },
+  {
+    label: "SWE",
+    spotifyCode: "SE",
+    mapCode: "SWE",
+  },
+  {
+    label: "ESP",
+    spotifyCode: "ES",
+    mapCode: "ESP",
+  },
+  {
+    label: "ARG",
+    spotifyCode: "AR",
+    mapCode: "ARG",
+  },
+  {
+    label: "AUT",
+    spotifyCode: "AT",
+    mapCode: "AUT",
+  },
+  {
+    label: "BEL",
+    spotifyCode: "BE",
+    mapCode: "BEL",
+  },
+  {
+    label: "BGR",
+    spotifyCode: "BG",
+    mapCode: "BGR",
+  },
+  {
+    label: "CAN",
+    spotifyCode: "CA",
+    mapCode: "CAN",
+  },
+  {
+    label: "CYP",
+    spotifyCode: "CY",
+    mapCode: "CYP",
+  },
+  {
+    label: "CZE",
+    spotifyCode: "CZ",
+    mapCode: "CZE",
+  },
+  {
+    label: "DNK",
+    spotifyCode: "DK",
+    mapCode: "DNK",
+  },
+  {
+    label: "EST",
+    spotifyCode: "EE",
+    mapCode: "EST",
+  },
+  {
+    label: "FIN",
+    spotifyCode: "FI",
+    mapCode: "FIN",
+  },
+  {
+    label: "FRA",
+    spotifyCode: "FR",
+    mapCode: "FRA",
+  },
+  {
+    label: "GRC",
+    spotifyCode: "GR",
+    mapCode: "GRC",
+  },
+  {
+    label: "HUN",
+    spotifyCode: "HU",
+    mapCode: "HUN",
+  },
+  {
+    label: "ISL",
+    spotifyCode: "IS",
+    mapCode: "ISL",
+  },
+  {
+    label: "IRL",
+    spotifyCode: "IE",
+    mapCode: "IRL",
+  },
+  {
+    label: "LVA",
+    spotifyCode: "LV",
+    mapCode: "LVA",
+  },
+  {
+    label: "LTU",
+    spotifyCode: "LT",
+    mapCode: "LTU",
+  },
+  {
+    label: "LUX",
+    spotifyCode: "LU",
+    mapCode: "LUX",
+  },
+  {
+    label: "MEX",
+    spotifyCode: "MX",
+    mapCode: "MEX",
+  },
+  {
+    label: "NLD",
+    spotifyCode: "NL",
+    mapCode: "NLD",
+  },
+  {
+    label: "NOR",
+    spotifyCode: "NO",
+    mapCode: "NOR",
+  },
+  {
+    label: "POL",
+    spotifyCode: "PL",
+    mapCode: "POL",
+  },
+  {
+    label: "PRT",
+    spotifyCode: "PT",
+    mapCode: "PRT",
+  },
+  {
+    label: "ROU",
+    spotifyCode: "RO",
+    mapCode: "ROU",
+  },
+  {
+    label: "SVK",
+    spotifyCode: "SK",
+    mapCode: "SVK",
+  },
+  {
+    label: "CHE",
+    spotifyCode: "CH",
+    mapCode: "CHE",
+  },
+  {
+    label: "UKR",
+    spotifyCode: "UA",
+    mapCode: "UKR",
+  },
+  {
+    label: "USA",
+    spotifyCode: "US",
+    mapCode: "USA",
+  }
+]
+
+type CountryDetails = {
+  label: string,
+  spotifyCode: string | null,
+  mapCode: string | null,
+}
+
+
+export {getFeaturesArray, getMapData, countryCodeMapping, countryMappings};
+export type { CountryDetails };
 
